@@ -1,14 +1,14 @@
 import { Settings } from "../../../../constants/settings";
 import { NoteSettings } from "../../../../constants/note-settings";
 
-import { type ComposableSourceEmitter, type EndableNode } from "../../../core/emitter";
+import { RestartableSourceEmitter, type EndableNode } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 
 
-export class PulseOscillator implements ComposableSourceEmitter, FrequencyBasedSignal, PulseBasedSignal
+export class PulseOscillator extends RestartableSourceEmitter implements FrequencyBasedSignal, PulseBasedSignal
 {
     private audioContext: AudioContext;
 
@@ -37,6 +37,8 @@ export class PulseOscillator implements ComposableSourceEmitter, FrequencyBasedS
 
     constructor(audioContext: AudioContext)
     {
+        super();
+
         this.audioContext = audioContext;
 
         // Instantiate the final output node separately, and before the other nodes
@@ -49,14 +51,14 @@ export class PulseOscillator implements ComposableSourceEmitter, FrequencyBasedS
         this.setEndableNodes();
     }
 
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public getOutputNode(): AudioNode { return this.outputNode; }
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    public override getOutputNode(): AudioNode { return this.outputNode; }
 
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public getEndableNodes(): EndableNode[] { return this.endableNodes; }
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    protected override getEndableNodes(): EndableNode[] { return this.endableNodes; }
 
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public setEndableNodes(): void
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    protected override setEndableNodes(): void
     {
         // Clear the array
         this.endableNodes.length = 0;
@@ -65,8 +67,8 @@ export class PulseOscillator implements ComposableSourceEmitter, FrequencyBasedS
         this.endableNodes.push(this.sawOscillatorNode);
     }
 
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public initNodes(): void
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    protected override initNodes(): void
     {
         // 1. Instantiate fresh nodes:
         // instantiate the sawtooth oscillator and set parameters
@@ -104,25 +106,25 @@ export class PulseOscillator implements ComposableSourceEmitter, FrequencyBasedS
         this.outputNode.gain.linearRampToValueAtTime(1.0, this.audioContext.currentTime);
     }
 
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public startNodes(delayDuration: number): void
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    protected override startNodes(): void
     {
         // Start all audio sources, in this case only one oscillator
-        this.sawOscillatorNode.start(this.audioContext.currentTime + delayDuration);
+        this.sawOscillatorNode.start(this.audioContext.currentTime);
     }
 
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public stopNodes(delayDuration: number): void
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    protected override stopNodes(): void
     {
         /* Before stopping all nodes, we mute the final output node, just to make sure
         ** we don't hear any clicks when stopping all nodes */
         // this.outputNode.gain.linearRampToValueAtTime(0.0, stopTime); // not quite correct, needs adjustment
 
-        this.sawOscillatorNode.stop(this.audioContext.currentTime + delayDuration);
+        this.sawOscillatorNode.stop(this.audioContext.currentTime);
     }
 
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public disconnectNodes(): void
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    protected override disconnectNodes(): void
     {
         /* Before disconnecting all nodes, we mute the final output node, just to make sure
         ** we don't hear any clicks when disconnecting all nodes */

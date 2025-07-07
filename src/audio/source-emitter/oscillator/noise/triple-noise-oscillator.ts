@@ -1,5 +1,5 @@
 import { Settings } from "../../../../constants/settings";
-import { type EndableNode, RestartableSourceEmitter } from "../../../core/emitter";
+import { type EndableNode, RestartableSourceEmitter, SourceEmitter } from "../../../core/emitter";
 import { WhiteNoiseOscillator } from "./white-noise";
 import { PinkNoiseOscillator } from "./pink-noise";
 import { BrownNoiseOscillator } from "./brown-noise";
@@ -25,7 +25,7 @@ export const NoiseType =
 
 export type NoiseType = (typeof NoiseType)[keyof typeof NoiseType];
 
-export class TripleNoiseOscillator extends RestartableSourceEmitter
+export class TripleNoiseOscillator extends SourceEmitter
 {
     private audioContext: AudioContext;
 
@@ -34,17 +34,11 @@ export class TripleNoiseOscillator extends RestartableSourceEmitter
     private pinkNoiseOscNode!: PinkNoiseOscillator;
     private brownNoiseOscNode!: BrownNoiseOscillator;
 
-    // Gain nodes for noise oscillators
-    // Must be initialized somewere inside the constructor, in this case the createNodes() method
-    private whiteNoiseGainNode!: GainNode;
-    private pinkNoiseGainNode!: GainNode;
-    private brownNoiseGainNode!: GainNode;
+    private restartableNodes: Array<RestartableSourceEmitter>;
 
     // The mixer that toggles on/off the oscillator nodes
     // Must be initialized somewere inside the constructor, in this case the initNodes() method
-    private toggleMixer!: ToggleMixer;
-
-    private endableNodes: Array<EndableNode> = new Array<EndableNode>();
+    private toggleMixer: ToggleMixer;
 
     private outputNode: GainNode;
 
@@ -78,33 +72,6 @@ export class TripleNoiseOscillator extends RestartableSourceEmitter
         }
 
         // Instantiate and connect all nodes and set their parameters
-        this.initNodes();
-
-        /* Set the array of 'EndableNodes' (nodes with 'onended' event) */
-        this.setEndableNodes();
-    }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    public override getOutputNode(): AudioNode { return this.outputNode; }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected override getEndableNodes(): EndableNode[] { return this.endableNodes; }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected override setEndableNodes(): void
-    {
-        // Clear the array
-        this.endableNodes.length = 0;
-
-        // Recreate the array by adding the required nodes
-        this.endableNodes.push(...this.whiteNoiseOscNode.getEndableNodes()); // ? does not seem correct
-        this.endableNodes.push(...this.pinkNoiseOscNode.getEndableNodes()); // ? does not seem correct
-        this.endableNodes.push(...this.brownNoiseOscNode.getEndableNodes()); // ? does not seem correct
-    }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected override initNodes(): void
-    {
         // Instantiate individual noise oscillator nodes
         this.whiteNoiseOscNode = new WhiteNoiseOscillator(this.audioContext);
         this.pinkNoiseOscNode = new PinkNoiseOscillator(this.audioContext);
@@ -122,42 +89,25 @@ export class TripleNoiseOscillator extends RestartableSourceEmitter
         // connect the result (of mixing the 3 oscillators) to the output gain node
         this.toggleMixer.getOutputNode().connect(this.outputNode);
 
-        // Cet correct gain level for individual noise oscillators
+        // Set correct gain level for individual noise oscillators
         this.setNoiseType(NoiseType.White);
+
+        /* Set the array of 'EndableNodes' (nodes with 'onended' event) */
+        // this.setEndableNodes();
+
+        this.restartableNodes = new Array<RestartableSourceEmitter>();
+        this.restartableNodes.push(this.whiteNoiseOscNode);
+        this.restartableNodes.push(this.pinkNoiseOscNode);
+        this.restartableNodes.push(this.brownNoiseOscNode);
     }
 
     // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected override startNodes(delayDuration: number): void
-    {
-        // start noise oscillators
-        this.whiteNoiseOscNode.startNodes(delayDuration);
-        this.pinkNoiseOscNode.startNodes(delayDuration);
-        this.brownNoiseOscNode.startNodes(delayDuration);
-    }
+    public override getOutputNode(): AudioNode { return this.outputNode; }
 
     // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected stopNodes(delayDuration: number): void
+    protected getRestartableNodes(): RestartableSourceEmitter[]
     {
-        this.whiteNoiseOscNode.stopNodes(delayDuration);
-        this.pinkNoiseOscNode.stopNodes(delayDuration);
-        this.brownNoiseOscNode.stopNodes(delayDuration);
-    }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected disconnectNodes(): void
-    {
-        this.whiteNoiseGainNode.disconnect(this.outputNode);
-        this.pinkNoiseGainNode.disconnect(this.outputNode);
-        this.brownNoiseGainNode.disconnect(this.outputNode);
-
-        this.whiteNoiseOscNode.getOutputNode().disconnect(this.whiteNoiseGainNode);
-        this.pinkNoiseOscNode.getOutputNode().disconnect(this.pinkNoiseGainNode);
-        this.brownNoiseOscNode.getOutputNode().disconnect(this.brownNoiseGainNode);
-
-        // Necessary?
-        this.whiteNoiseOscNode.disconnectNodes();
-        this.pinkNoiseOscNode.disconnectNodes();
-        this.brownNoiseOscNode.disconnectNodes();
+        return this.restartableNodes;
     }
 
     public setNoiseType(noiseType: NoiseType): void

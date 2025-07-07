@@ -55,45 +55,32 @@ export interface ComposableSourceEmitter
 
 export abstract class RestartableSourceEmitter
 {
-    /* Methods inherited from 'ChildSourceEmitter' interface */
     public abstract getOutputNode(): AudioNode;
 
-    protected abstract getEndableNodes(): EndableNode[];
+    protected abstract getEndableNodes(): Array<EndableNode>;
     /* This method must recreate the array of endable nodes, every time a new note is played */
     protected abstract setEndableNodes(): void;
     
     protected abstract initNodes(): void;
-    protected abstract startNodes(delayDuration: number): void;
-    protected abstract stopNodes(delayDuration: number): void;
+    protected abstract startNodes(): void;
+    protected abstract stopNodes(): void;
     protected abstract disconnectNodes(): void;
-
 
     /** Subclass must return every SourceNode */
     // public abstract getChildSourceNodes(): ChildSourceEmitter[];
 
-    public startSignal(delayDuration: number): void
+    public startSignal(): void
     {
-        // const childNodes = this.getChildSourceNodes();
-        // for (const node of childNodes)
-        // {
-        //     node.reconnectNodes();
-        // }
-
-        // for (const node of childNodes)
-        // {
-        //     node.startNodes(time);
-        // }
-
         this.initNodes();
         this.setEndableNodes();
-        this.startNodes(delayDuration);
+        this.startNodes();
     }
 
     /* Method that uses the 'stopNodes()' and 'disconnectNodes()' methods to stop the audio/signal from
     ** this node.
     ** This method is public and already implemented and should be called by the user himself, every time new note
     ** is stopped. */
-    public stopSignal(delayDuration: number): void
+    public stopSignal(): void
     {
         const endableNodes = this.getEndableNodes();
         let remaining = endableNodes.length;
@@ -104,7 +91,7 @@ export abstract class RestartableSourceEmitter
             return;
         }
 
-        this.stopNodes(delayDuration);
+        this.stopNodes();
 
         /* We want to disconnect the internal audio nodes AFTER they have completely stopped,
         ** but we can't know for sure when they will stop, so this is why we use the 'onended' event
@@ -123,6 +110,30 @@ export abstract class RestartableSourceEmitter
                 if (remaining === 0)
                     this.disconnectNodes(); // disconnect all internal audio nodes
             };
+        }
+    }
+}
+
+export abstract class SourceEmitter
+{
+    public abstract getOutputNode(): AudioNode;
+    protected abstract getRestartableNodes(): Array<RestartableSourceEmitter>;
+
+    public startSignal(): void
+    {
+        const restartableNodes = this.getRestartableNodes();
+        for (const restartableNode of restartableNodes)
+        {
+            restartableNode.startSignal();
+        }
+    }
+
+    public stopSignal(): void
+    {
+        const restartableNodes = this.getRestartableNodes();
+        for (const restartableNode of restartableNodes)
+        {
+            restartableNode.stopSignal();
         }
     }
 }
