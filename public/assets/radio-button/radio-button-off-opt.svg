@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="36mm" height="36mm" version="1.1" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs>
+      <linearGradient id="b" x1="55.86476" x2="81.17067" y1="30.64264" y2="42.77269" gradientTransform="matrix(.9368067 0 0 .9368067 -51.4859 -22.6843)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#3f3b3b" offset="0"/>
+         <stop stop-color="#322f2f" offset="1"/>
+      </linearGradient>
+      <linearGradient id="c" x1="16.84688" x2="38.47745" y1="36.60718" y2="46.39717" gradientTransform="matrix(.932144 0 0 .932144 -13.00622 -25.6826)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#575151" offset="0"/>
+         <stop stop-color="#3f3b3b" offset="1"/>
+      </linearGradient>
+      <filter id="d" x="-.024" y="-.024" width="1.048" height="1.048" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="0.2 0.2"/>
+      </filter>
+      <filter id="g" x="-.1028572" y="-.1028572" width="1.205714" height="1.205714" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="1.2 1.2"/>
+      </filter>
+      <filter id="f" x="-.1028572" y="-.1028572" width="1.205714" height="1.205714" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="1.2 1.2"/>
+      </filter>
+      <radialGradient id="a" cx="-24.22503" cy="26.64029" r="7.565397" gradientTransform="translate(39.99814 -13.43972)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#ffffff" stop-opacity=".4" offset="0"/>
+         <stop stop-color="#ffffff" stop-opacity="0" offset="1"/>
+      </radialGradient>
+      <filter id="e" x="-.36" y="-.36" width="1.72" height="1.72" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="3 3"/>
+      </filter>
+      <clipPath id="h">
+         <circle cx="18.32083" cy="18.32083" r="12" fill="#337e47" fill-opacity=".4" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+      </clipPath>
+   </defs>
+   <g>
+      <g class="bg-shadow" transform="translate(5.820833 5.820833)">
+         <circle cx="11.17708" cy="11.17708" r="14" fill="#000000" fill-opacity=".7" filter="url(#f)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <circle cx="13.82292" cy="13.82292" r="14" fill="#ffffff" fill-opacity=".2" filter="url(#g)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <circle cx="12.5" cy="12.5" r="14" fill="#171717" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+      </g>
+      <g class="radio-button-off" transform="translate(5.584663 5.40086)">
+         <circle cx="12.73617" cy="12.91997" r="12" fill="url(#b)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <circle cx="12.73617" cy="12.91997" r="10" fill="url(#c)" filter="url(#d)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+      </g>
+      <circle cx="15.77312" cy="13.20057" r="10" clip-path="url(#h)" fill="url(#a)" filter="url(#e)" stop-color="#000000" stroke-width=".154904" style="-inkscape-stroke:none"/>
+   </g>
+</svg>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20mm" height="26mm" version="1.1" viewBox="0 0 20 26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs>
+      <linearGradient id="a">
+         <stop stop-color="#1a1a1a" offset="0"/>
+         <stop stop-color="#333333" offset="1"/>
+      </linearGradient>
+      <linearGradient id="g" x1="20.63242" x2="40.63242" y1="32.56405" y2="32.56405" gradientTransform="translate(9.045186 33.58933)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#525252" offset="0"/>
+         <stop stop-color="#3d3d3d" offset="1"/>
+      </linearGradient>
+      <linearGradient id="f" x1="25.72056" x2="27.72056" y1="61.50315" y2="61.50315" gradientTransform="translate(5.957048 4.150227)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+      <linearGradient id="e" x1="25.72056" x2="27.72056" y1="61.50315" y2="61.50315" gradientTransform="translate(9.957049 4.150227)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+      <linearGradient id="d" x1="25.72056" x2="27.72056" y1="61.50315" y2="61.50315" gradientTransform="translate(13.95705 4.150227)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#1a1a1a" offset="0"/>
+         <stop stop-color="#2e2e2e" offset="1"/>
+      </linearGradient>
+      <linearGradient id="c" x1="25.72056" x2="27.72056" y1="61.50315" y2="61.50315" gradientTransform="translate(17.95705 4.150227)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#1a1a1a" offset="0"/>
+         <stop stop-color="#2e2e2e" offset="1"/>
+      </linearGradient>
+      <linearGradient id="b" x1="25.72056" x2="27.72056" y1="61.50315" y2="61.50315" gradientTransform="translate(21.95705 4.150227)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#1a1a1a" offset="0"/>
+         <stop stop-color="#2e2e2e" offset="1"/>
+      </linearGradient>
+      <clipPath id="h">
+         <rect x="29.67761" y="58.15338" width="20" height="15" rx=".9999999" ry=".9999999" fill="#444444" stop-color="#000000" stroke-width=".148932" style="-inkscape-stroke:none"/>
+      </clipPath>
+   </defs>
+   <g>
+      <g transform="translate(-29.67761 -52.65338)" clip-path="url(#h)">
+         <rect x="29.67761" y="58.15338" width="20" height="15" rx="0" ry="0" fill="url(#g)" stop-color="#000000" stroke-width=".148932" style="-inkscape-stroke:none"/>
+         <rect x="31.67761" y="58.15338" width="2" height="15" fill="url(#f)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <rect x="35.67761" y="58.15338" width="2" height="15" fill="url(#e)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <rect x="39.67761" y="58.15338" width="2" height="15" fill="url(#d)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <rect x="43.67761" y="58.15338" width="2" height="15" fill="url(#c)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <rect x="47.67761" y="58.15338" width="2" height="15" fill="url(#b)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+      </g>
+   </g>
+</svg>

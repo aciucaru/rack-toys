@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30mm" height="24mm" version="1.1" viewBox="0 0 30 24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs>
+      <filter id="a" x="-.07110584" y="-.08101082" width="1.142212" height="1.162022" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="1 1"/>
+      </filter>
+      <filter id="b" x="-.07110584" y="-.08101082" width="1.142212" height="1.162022" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="1 1"/>
+      </filter>
+   </defs>
+   <g>
+      <g class="bg-shadow" transform="matrix(.490105 0 0 .7870676 .302599 .092529)">
+         <rect transform="matrix(1.529978 0 0 .8542148 17.32542 -20.62564)" x="-9.026199" y="26.25636" width="33.7525" height="29.62567" rx="2.667203" ry="2.974755" fill="#020202" fill-opacity=".7" filter="url(#a)" stop-color="#000000" stroke-width=".218165" style="-inkscape-stroke:none"/>
+         <rect transform="matrix(1.481092 0 0 .8401016 19.9564 -18.45784)" x="-9.026199" y="26.25636" width="33.7525" height="29.62567" rx="2.755238" ry="3.024728" fill="#ffffff" fill-opacity=".202825" filter="url(#b)" stop-color="#000000" stroke-width=".218165" style="-inkscape-stroke:none"/>
+         <rect x="4.838455" y="3.125846" width="50.34114" height="23.99679" rx="4.080761" ry="2.541079" fill="#1a1a1a" stop-color="#000000" stroke-width=".239793" style="-inkscape-stroke:none"/>
+      </g>
+   </g>
+</svg>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20mm" height="26mm" version="1.1" viewBox="0 0 20 26" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs>
+      <filter id="a" x="-.08000005" y="-.2999989" width="1.16" height="1.599998" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="2"/>
+      </filter>
+      <filter id="b" x="-.04" y="-.15" width="1.08" height="1.3" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="1 1"/>
+      </filter>
+      <clipPath id="d">
+         <rect x="218.723" y="119.8359" width="60" height="16" rx="2" ry="2" fill="#606060" stop-color="#000000" stroke-width=".148932" style="-inkscape-stroke:none"/>
+      </clipPath>
+      <filter id="c" x="-.04" y="-.15" width="1.08" height="1.3" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="1"/>
+      </filter>
+      <clipPath id="e">
+         <rect x="25" y="3.552714e-15" width="20" height="26" fill="#020202" fill-opacity=".7" stop-color="#000000" stroke-width=".154904" style="-inkscape-stroke:none"/>
+      </clipPath>
+   </defs>
+   <g>
+      <g transform="translate(-25)" clip-path="url(#e)">
+         <rect x="4" y="4" width="60" height="16" rx="2" ry="2" fill="#020202" fill-opacity=".7" filter="url(#c)" stop-color="#000000" stroke-width=".154904" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <rect x="6" y="6" width="60" height="16" rx="2" ry="2" fill="#ffffff" fill-opacity=".202825" filter="url(#b)" stop-color="#000000" stroke-width=".151145" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <g transform="translate(-213.723 -114.8359)" clip-path="url(#d)">
+            <rect x="218.723" y="119.8359" width="60" height="16" rx="0" ry="0" fill="#262626" stop-color="#000000" stroke-width=".148932" style="-inkscape-stroke:none"/>
+            <path d="m218.723 119.8359v16.00006h1.99988v-13.00024c0-.554.44594-.99994.99994-.99994h54.00032c.554 0 .99994.44594.99994.99994v13.00024h1.99988v-16.00006z" fill="#000000" fill-opacity=".998373" filter="url(#a)" stop-color="#000000" stroke-width=".154904" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+            <rect x="218.723" y="137.0109" width="60" height="2" rx="0" ry="0" fill="#020202" filter="url(#a)" stop-color="#000000" stroke-width=".154904" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         </g>
+      </g>
+   </g>
+</svg>

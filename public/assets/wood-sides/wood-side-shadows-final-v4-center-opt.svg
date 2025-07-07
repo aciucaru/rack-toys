@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30" height="100" version="1.1" viewBox="0 0 30 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+   <defs>
+      <filter id="d" x="-.3829628" y="-.04990068" width="1.765926" height="1.099801" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="3 3"/>
+      </filter>
+      <filter id="c" x="-.382963" y="-.04990068" width="1.765926" height="1.099801" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="3 3"/>
+      </filter>
+      <linearGradient id="b" x1="345.6199" x2="345.5621" y1="730.0131" y2="-4.984254" gradientTransform="translate(-172.5687 -18.07583)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#e1c7b7" stop-opacity=".4" offset="0"/>
+         <stop stop-color="#e1c7b7" stop-opacity=".6" offset="1"/>
+      </linearGradient>
+      <linearGradient id="a" x1="529.0287" x2="528.98" y1="723.7634" y2="-10.29139" gradientTransform="translate(-297.5075 -12.68815)" gradientUnits="userSpaceOnUse">
+         <stop stop-color="#24180f" stop-opacity=".95" offset="0"/>
+         <stop stop-color="#231710" stop-opacity=".7490196" offset="1"/>
+      </linearGradient>
+      <clipPath id="e">
+         <rect x="186.484" y="-7.902691" width="30" height="100" fill="#030201" stop-color="#000000" stroke-width="1.22554" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+      </clipPath>
+   </defs>
+   <g>
+      <g class="wood-side-shadows" transform="translate(-186.484 7.902691)" clip-path="url(#e)" stroke-width="1.22554">
+         <path transform="matrix(.9788969 0 0 1.209832 4.251933 11.58642)" d="m171.3726-52.1893v144.2866h18.80078v-144.2866z" fill="url(#b)" filter="url(#d)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+         <path transform="matrix(.9788969 0 0 1.209832 4.251933 11.58642)" d="m212.7945-52.1893v144.2866h18.80077v-144.2866z" fill="url(#a)" filter="url(#c)" stop-color="#000000" style="-inkscape-stroke:none;font-variation-settings:normal"/>
+      </g>
+   </g>
+</svg>

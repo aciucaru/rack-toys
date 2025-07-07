@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="25mm" height="150mm" version="1.1" viewBox="0 0 25 150" xmlns="http://www.w3.org/2000/svg">
+   <defs>
+      <filter id="b" x="-.48" y="-.02071942" width="1.96" height="1.041439" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="fbSourceGraphic" stdDeviation="0.5 0.5"/>
+         <feColorMatrix in="fbSourceGraphic" result="fbSourceGraphicAlpha" values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0"/>
+         <feGaussianBlur in="fbSourceGraphic" result="blur" stdDeviation="0.7 0.7"/>
+      </filter>
+      <filter id="a" x="-.28" y="-.01208633" width="1.56" height="1.024173" color-interpolation-filters="sRGB">
+         <feGaussianBlur result="blur" stdDeviation="0.7 0.7"/>
+      </filter>
+   </defs>
+   <g>
+      <rect transform="matrix(1.011535 0 0 .9489881 -7.730706 3.841578)" x="18" y="6.109084" width="6" height="139" rx="2.965793" ry="3.161267" fill="#ffffff" fill-opacity=".15" filter="url(#b)" stop-color="#000000" style="-inkscape-stroke:none"/>
+      <rect transform="matrix(1.011535 0 0 .9489881 -7.730706 3.841578)" x="16" y="5.109092" width="6" height="139" rx="2.965793" ry="3.161267" fill="#000000" fill-opacity=".7" filter="url(#a)" stop-color="#000000" style="-inkscape-stroke:none"/>
+      <rect x="9.465391" y="9.639028" width="6.069212" height="130.9604" rx="3.000005" ry="3.000004" fill="#121212" fill-opacity=".996301" stop-color="#000000" style="-inkscape-stroke:none"/>
+      <g transform="matrix(1 0 0 .8817762 -7.19197 9.306553)" fill-opacity=".996301">
+         <rect x="2.999996" y="12.10909" width="10" height="1" fill="#cccccc" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="18.99971" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="25.89034" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="32.78096" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="39.67158" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="46.56221" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="53.45284" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="60.34346" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="67.23408" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="74.12471" width="10" height="1" fill="#cccccc" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="81.01534" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="87.90596" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="94.79658" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="101.6872" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="108.5778" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="115.4685" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="122.3591" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="129.2497" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="136.1404" width="10" height="1" fill="#cccccc" stop-color="#000000" style="-inkscape-stroke:none"/>
+      </g>
+      <g transform="matrix(1 0 0 .8817762 16.19198 9.306553)" fill-opacity=".996301">
+         <rect x="2.999996" y="12.10909" width="10" height="1" fill="#cccccc" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="18.99971" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="25.89034" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="32.78096" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="39.67158" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="46.56221" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="53.45284" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="60.34346" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="67.23408" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="74.12471" width="10" height="1" fill="#cccccc" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="81.01534" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="87.90596" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="94.79658" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="101.6872" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="108.5778" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="115.4685" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="122.3591" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="129.2497" width="10" height="1" fill="#525252" stop-color="#000000" style="-inkscape-stroke:none"/>
+         <rect x="2.999996" y="136.1404" width="10" height="1" fill="#cccccc" stop-color="#000000" style="-inkscape-stroke:none"/>
+      </g>
+   </g>
+</svg>

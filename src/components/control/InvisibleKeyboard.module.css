@@ -1,0 +1,16 @@
+.mainContainer
+{
+    box-sizing: border-box;
+    height: 0px;
+    width: 0px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center; /* main axis */
+    align-items: center; /* cross axis */
+    align-content: center; /* space between lines */
+
+    margin: 0px;
+    padding: 0px;
+    background-color: blue;
+}

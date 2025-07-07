@@ -1,0 +1,138 @@
+.main-container
+{
+  width: 1920px;
+  height: 1080px;
+
+  --unitpx: 5px;
+  --text-height: 14px;
+
+  box-sizing: border-box;
+
+  display: grid;
+  /* grid-template-columns: repeat(2, var(--unitpx)) repeat(calc(13 * 16), var(--unitpx));
+  grid-template-rows: repeat(2, var(--unitpx)) repeat(calc(20 * 10), var(--unitpx)); */
+  grid-template-columns: repeat(calc(25 * 16), var(--unitpx));
+  grid-template-rows: repeat(calc(10 * 24), var(--unitpx));
+
+  justify-items: center;
+  align-items: stretch;
+  justify-content: space-between;
+  align-content: space-between;
+  gap: 0px;
+
+  margin: 0px;
+  padding: 0px;
+
+  border-radius: 2px;
+
+  background: linear-gradient(hsl(216, 20%, 10%) 0%, hsl(207, 20%, 5%) 50%);
+}
+
+/* ************************************************************************************* */
+.control-basic-container
+{
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  /* justify-content: flex-start;
+  align-items: center; */
+  justify-content: flex-end;
+  align-items: flex-start;
+
+  width: calc(16 * var(--unitpx));
+  height: calc(24 * var(--unitpx));
+
+  /* The cell container will be part of a grid layout, these settings
+  *  define the size it ocuppies in that grid */
+  grid-column-end: span 16;
+  grid-row-end: span 24;
+
+  margin: 0px;
+  padding: 0px;
+
+  border: solid 1px gray;
+}
+
+.knob
+{
+  box-sizing: border-box;
+
+  width: calc(10 * var(--unitpx));
+  height: calc(10 * var(--unitpx));
+  /* width: 55px; */
+  /* height: 55px; */
+
+  margin: 0px;
+  margin-left: calc(2 * var(--unitpx));
+  margin-top: calc(2 * var(--unitpx));
+  padding: 0px;
+
+  /* border: solid 1px gray; */
+
+  background-image: url("./knob-opt.svg");
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  /* filter: brightness(0.95); */
+}
+
+.label
+{
+  box-sizing: border-box;
+
+  width: calc(14 * var(--unitpx));
+  height: calc(3 * var(--unitpx));
+  /* width: 55px; */
+  /* height: 15px; */
+
+  margin: 0px;
+  padding: 0px;
+
+  /* border: solid 1px gray; */
+
+  color: white;
+  font-family: sans-serif;
+  font-size: var(--text-height);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+}
+
+.value
+{
+  box-sizing: border-box;
+  
+  width: calc(14 * var(--unitpx));
+  height: calc(3 * var(--unitpx));
+  /* width: 55px; */
+  /* height: 15px; */
+
+  margin: 0px;
+  padding: 0px;
+
+  /* border: solid 1px gray; */
+
+  color: cornflowerblue;
+  font-family: sans-serif;
+  font-size: var(--text-height);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+}
+
+.space
+{
+    box-sizing: border-box;
+  
+    width: calc(16 * var(--unitpx));
+    height: calc(1 * var(--unitpx));
+    /* width: 55px; */
+    /* height: 15px; */
+  
+    margin: 0px;
+    padding: 0px;
+  
+    /* border: solid 1px gray; */
+}

@@ -1,0 +1,169 @@
+.mainContainer
+{
+    box-sizing: border-box;
+
+    display: flex;
+    flex-flow: column nowrap;
+    /* set alignment on main axis */
+    justify-content: flex-start;
+    /* set alingment on cross-axis */
+    align-items: center;
+    /* set space between flex lines */
+    align-content: center;
+    gap: 5px;
+
+    margin: 0px;
+    padding: 0px;
+}
+
+.label
+{
+    box-sizing: border-box;
+
+    margin: 0px;
+    padding: 0px;
+
+    color: hsl(0, 0%, 85%);
+    pointer-events: none;
+    box-sizing: border-box;
+
+    font-family: sans-serif;
+    font-size: 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+}
+
+/* custom local font definition; this defines a font named "LCD14" */
+@font-face
+{
+    font-family: LCD14;
+    src: url("/assets/fonts/LCD14.otf");
+    font-weight: normal;
+    font-style: italic;
+}
+
+.numericValue
+{
+    pointer-events: none;
+    
+    box-sizing: border-box;
+
+    color: hsl(210, 30%, 60%);
+    font-family: LCD14, Tahoma, serif;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: clip;
+}
+
+.faderContainer
+{
+    box-sizing: border-box;
+
+    width: 40px;
+    height: 150px;
+
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+
+    justify-items: center;
+    align-items: start;
+    justify-content: center;
+    gap: 0px;
+
+    margin: 0px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 0px;
+}
+
+.faderTrack
+{
+    box-sizing: border-box;
+
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+
+    width: 40px;
+    height: 100%;
+
+    margin: 0px;
+    padding: 0px;
+
+    /* necessary settings, otherwise the SVG backgorund won't display properly: */
+    background-size: 100% auto;
+    background-size: contain;
+    /* background-size: cover; */
+    background-attachment: scroll;
+    background-repeat: no-repeat;
+    background-position: top left;
+}
+
+.faderTrackUnidirectional
+{
+    background-image: url("/assets/fader/fader-vertical-track-opt.svg");
+}
+
+.faderTrackBidirectional
+{
+    background-image: url("/assets/fader/fader-vertical-track-bidirectional-opt.svg");
+}
+
+.thumbContainer
+{
+    box-sizing: border-box;
+
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+
+    width: 100%;
+    height: auto;
+
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-content: center;
+
+    margin: 0px;
+    padding: 0px;
+
+    /* border: solid 1px grey; */
+}
+
+.thumbPrefill
+{
+    box-sizing: border-box;
+
+    width: 100%;
+
+    margin: 0px;
+    padding: 0px;
+
+    /* border: solid 1px hsl(113, 60%, 60%); */
+}
+
+.thumb
+{
+    box-sizing: border-box;
+
+    width: 100%;
+    height: 25px;
+
+    margin: 0px;
+    padding: 0px;
+
+    /* border: solid 1px hsl(231, 60%, 60%); */
+
+    content: url("/assets/fader/fader-vertical-thumb-grey.svg");
+    /* content: url("../assets/fader/fader-vertical-thumb.png"); */
+    /* necessary settings, otherwise the SVG background won't display properly: */
+    background-size: 100% auto;
+    /* "background-size: contain" scales the image as large as possible within its container without cropping or stretching the image */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: top left;
+    background-attachment: scroll;
+}
