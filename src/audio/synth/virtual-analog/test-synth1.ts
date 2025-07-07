@@ -5,14 +5,6 @@ import type { IntermediateEmitter } from "../../core/emitter";
 
 import { Note12TET } from "../../note/note";
 
-import { TripleShapeOscillator } from "../../source-emitter/oscillator/melodic/triple-shape-oscillator";
-import { TripleNoiseOscillator } from "../../source-emitter/oscillator/noise/triple-noise-oscillator";
-
-import { AdditiveMixer } from "../../intermediate-emitter/mixer/additive-mixer";
-import { OscFilter } from "../../intermediate-emitter/filter/lowpass-filter";
-
-import { AdsrEnvelopeSource } from "../../source-emitter/modulator/adsr-envelope";
-
 import type { MonoSynth } from "../../core/synth";
 
 import { Logger } from "tslog";
@@ -41,15 +33,9 @@ export class TestSynth1 implements IntermediateEmitter, MonoSynth
     {
         this.audioContext = audioContext;
 
-
         this.note = new Note12TET(4, 9);
 
         this.oscillator = new PulseOscillator(this.audioContext);
-
-        // instantiate and set the ADSR envelope
-        // this.voiceAdsrEnvelope = new AdsrEnvelopeSource(this.audioContext);
-        // this.voiceAdsrGainNode = this.audioContext.createGain();
-        // this.voiceAdsrGainNode.gain.setValueAtTime(Settings.adsrOffLevel, this.audioContext.currentTime);
 
         // instantiate and set the final gain node
         this.outputGainNode = this.audioContext.createGain();
@@ -57,11 +43,6 @@ export class TestSynth1 implements IntermediateEmitter, MonoSynth
 
         // the filtered oscillators are taken from the filter output
         this.oscillator.getOutputNode().connect(this.outputGainNode);
-        
-        /* Connect ADSR envelope with GainNode dedicated to ADSR envelope modulation.
-        ** Important! this ADSR modulation gets ADDED to the current value of .gain parameter, it does not overwrite it!
-        ** This is why the .gain parameter's value should be zero. */
-        // this.voiceAdsrEnvelope.getOutputNode().connect(this.voiceAdsrGainNode.gain);
 
         // finally, connect the output from the GainNode modulated by ADSR to the final output GainNode
         // this.voiceAdsrGainNode.connect(this.outputGainNode);
@@ -86,7 +67,7 @@ export class TestSynth1 implements IntermediateEmitter, MonoSynth
         // then trigger the ADSR envelope for the voice
         // this.voiceAdsrEnvelope.startSignal(0);
 
-        this.oscillator.startNodes(0);
+        this.oscillator.startSignal();
     }
 
     // Method inherited from 'MonoSynth' interface
@@ -96,27 +77,8 @@ export class TestSynth1 implements IntermediateEmitter, MonoSynth
 
         // stop the ADSR envelope for the voice
         // this.voiceAdsrEnvelope.stopSignal(0);
-        this.oscillator.stopNodes(0);
+        this.oscillator.stopSignal();
     }
-
-    // Method inherited from 'MonoSynth' interface
-    // noteOnOff(octaves: number, semitones: number, duration: number): void
-    // {
-    //     VirtualAnalogMonoVoice.logger.debug(`noteOn(octaves = ${octaves}, semitones = ${semitones})`);
-
-    //     this.note.setOctavesAndSemitones(octaves, semitones);
-
-    //     // first, set the internal note (as octaves and semitones) for all melodic oscillators
-    //     // this.multiShapeOscillator1.setNote(octaves, semitones);
-    //     // this.multiShapeOscillator2.setNote(octaves, semitones);
-    //     this.multiShapeOscillator1.setFrequency(this.note.getFreq()); // maybe should just set octaves and semitones?
-    //     this.multiShapeOscillator2.setFrequency(this.note.getFreq());
-
-    //     // then trigger the ADSR envelope for the voice
-    //     this.voiceAdsrEnvelope.startSignal(0);
-    //     // and then trigger the ADSR envelopr for the filter as well
-    //     this.filterNode.getAdsrEnvelope().startBeat(duration);
-    // }
 
     public setMainGain(gain: number): void
     {
