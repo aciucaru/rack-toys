@@ -43,6 +43,7 @@ export class TestSynth1 implements IntermediateEmitter, MonoSynth
 
         // the filtered oscillators are taken from the filter output
         this.oscillator.getOutputNode().connect(this.outputGainNode);
+        this.oscillator.setFrequency(this.note.getFreq());
 
         // finally, connect the output from the GainNode modulated by ADSR to the final output GainNode
         // this.voiceAdsrGainNode.connect(this.outputGainNode);
