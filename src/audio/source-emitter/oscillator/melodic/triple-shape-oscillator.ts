@@ -2,28 +2,29 @@ import { Settings } from "../../../../constants/settings";
 import { PulseOscillator } from "./pulse-oscillator";
 import { ToggleMixer } from "../../../intermediate-emitter/mixer/toggle-mixer";
 
-import { RestartableSourceEmitter, type EndableNode } from "../../../core/emitter";
+import { RestartableSourceEmitter, SourceEmitter } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
+import { SimpleOscillator, SimpleWaveshape } from "./simple-oscillator";
 
 
-export class TripleShapeOscillator extends RestartableSourceEmitter implements FrequencyBasedSignal, PulseBasedSignal
+export class TripleShapeOscillator extends SourceEmitter implements FrequencyBasedSignal, PulseBasedSignal
 {
     private audioContext: AudioContext;
 
     // The oscillator nodes:
     // Must be initialized somewere inside the constructor, in this case the initNodes() method
-    private triangleOscillatorNode!: OscillatorNode;
-    private sawOscillatorNode!: OscillatorNode;
-    private pulseOscillatorNode!: PulseOscillator;
+    private triangleOscillatorNode: SimpleOscillator;
+    private sawOscillatorNode: SimpleOscillator;
+    private pulseOscillatorNode: PulseOscillator;
+
+    private restartableNodes: Array<RestartableSourceEmitter>;
 
     // The mixer that toggles on/off the oscillator nodes
     // Must be initialized somewere inside the constructor, in this case the initNodes() method
-    private toggleMixer!: ToggleMixer;
-
-    private endableNodes: Array<EndableNode> = new Array<EndableNode>();
+    private toggleMixer: ToggleMixer;
 
     // The final output of this class
     private outputNode: GainNode;
@@ -44,51 +45,20 @@ export class TripleShapeOscillator extends RestartableSourceEmitter implements F
         // Instantiate the final output node separately, and before the other nodes
         this.outputNode = this.audioContext.createGain();
 
-        // Instantiate and connect all nodes and set their parameters
-        this.initNodes();
-
-        /* Set the array of 'EndableNodes' (nodes with 'onended' event) */
-        this.setEndableNodes();
-    }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    public override getOutputNode(): AudioNode { return this.outputNode; }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected override getEndableNodes(): EndableNode[] { return this.endableNodes; }
-
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public setEndableNodes(): void
-    {
-        // Clear the array
-        this.endableNodes.length = 0;
-
-        // Add the required nodes
-        this.endableNodes.push(this.triangleOscillatorNode);
-        this.endableNodes.push(this.sawOscillatorNode);
-        this.endableNodes.push(...this.pulseOscillatorNode.getEndableNodes()); // ? does not seem correct
-    }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected override initNodes(): void
-    {
         // Instantiate all nodes:
         // instantiate sound oscillators
-        this.triangleOscillatorNode = this.audioContext.createOscillator();
-        this.triangleOscillatorNode.type = "triangle";
+        this.triangleOscillatorNode = new SimpleOscillator(this.audioContext, SimpleWaveshape.TRIANGLE);
 
-        this.sawOscillatorNode = this.audioContext.createOscillator();
-        this.sawOscillatorNode.type = "sawtooth";
+        this.sawOscillatorNode = new SimpleOscillator(this.audioContext, SimpleWaveshape.SAWTOOTH);
 
         this.pulseOscillatorNode = new PulseOscillator(this.audioContext);
-        // this.pulseOscillatorNode.initNodes(); // seems to be not necessary
 
         // Instantiate the oscillators mixer, which toggles oscillator on/off
         this.toggleMixer = new ToggleMixer(this.audioContext);
 
         // Connect all nodes between them:
-        this.toggleMixer.connectInput(this.triangleOscillatorNode);
-        this.toggleMixer.connectInput(this.sawOscillatorNode);
+        this.toggleMixer.connectInput(this.triangleOscillatorNode.getOutputNode());
+        this.toggleMixer.connectInput(this.sawOscillatorNode.getOutputNode());
         this.toggleMixer.connectInput(this.pulseOscillatorNode.getOutputNode());
 
         /* Toggle the oscillators on/off, the indexes must correspond to the order in wich these inputs
@@ -99,49 +69,27 @@ export class TripleShapeOscillator extends RestartableSourceEmitter implements F
 
         // Connect the result (of mixing the 3 oscillators) to the output gain node
         this.toggleMixer.getOutputNode().connect(this.outputNode);
+
+        this.restartableNodes = new Array<RestartableSourceEmitter>();
+        this.restartableNodes.push(this.sawOscillatorNode);
+        this.restartableNodes.push(this.triangleOscillatorNode);
+        this.restartableNodes.push(this.pulseOscillatorNode);
     }
 
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected override startNodes(delayDuration: number): void
+    // Method inherited from 'SourceEmitter' abstract class
+    public override getOutputNode(): AudioNode { return this.outputNode; }
+
+    // Method inherited from 'SourceEmitter' abstract class
+    protected override getRestartableNodes(): RestartableSourceEmitter[]
     {
-        // Start all audio sources
-        this.triangleOscillatorNode.start(this.audioContext.currentTime + delayDuration);
-        this.sawOscillatorNode.start(this.audioContext.currentTime + delayDuration);
-        this.pulseOscillatorNode.startNodes(delayDuration); // this is a custom compound node
-    }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected stopNodes(delayDuration: number): void
-    {
-        this.triangleOscillatorNode.stop(this.audioContext.currentTime + delayDuration);
-        this.sawOscillatorNode.stop(this.audioContext.currentTime + delayDuration);
-
-        // This is a custom compound node and the 'stop()' method also disconencts its internal nodes.
-        // The 'stop()' method is inherited from 'RestartableSourceEmitter' class
-        this.pulseOscillatorNode.stopNodes(delayDuration);
-    }
-
-    // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected disconnectNodes(): void
-    {
-        /* Toggle the oscillators off, the indexes must correspond to the order in wich these inputs
-        ** where added to 'toggledInputsMixer' */
-        this.toggleMixer.toggleInputOff(TripleShapeOscillator.TRIANGLE_OSC_INDEX);
-        this.toggleMixer.toggleInputOff(TripleShapeOscillator.SAW_OSC_INDEX);
-        this.toggleMixer.toggleInputOff(TripleShapeOscillator.PULSE_OSC_INDEX);
-
-        // We disconnect nodes in the reverse order we connected them
-        this.toggleMixer.getOutputNode().disconnect(this.outputNode);
-        this.toggleMixer.disconnectAllInputs();
+        return this.restartableNodes;
     }
     
     // Method inherited from 'FrequencyBasedSignal' interface
     public setFrequency(frequency: number): boolean
     {
-        const currentTime = this.audioContext.currentTime;
-
-        this.triangleOscillatorNode.frequency.setValueAtTime(frequency, currentTime);
-        this.sawOscillatorNode.frequency.setValueAtTime(frequency, currentTime);
+        this.triangleOscillatorNode.setFrequency(frequency);
+        this.sawOscillatorNode.setFrequency(frequency);
         this.pulseOscillatorNode.setFrequency(frequency);
 
         return true;

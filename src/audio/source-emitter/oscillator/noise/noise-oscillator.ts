@@ -2,7 +2,7 @@ import { Settings } from "../../../../constants/settings";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import type { ComposableSourceEmitter, EndableNode } from "../../../core/emitter";
+import { type EndableNode, RestartableSourceEmitter } from "../../../core/emitter";
 
 
 /* Base abstract class for all custom noise oscillators.
@@ -10,7 +10,7 @@ import type { ComposableSourceEmitter, EndableNode } from "../../../core/emitter
 ** fillNoiseBuffer()
 ** The 'fillNoiseBuffer()' method must be implemented by a concrete class and must fill a bufer with the actual noise,
 ** which will differ depending on the noise type (white, pink, brown, etc.). */
-export abstract class NoiseOscillator implements ComposableSourceEmitter
+export abstract class NoiseOscillator extends RestartableSourceEmitter
 {
     private audioContext: AudioContext;
 
@@ -31,6 +31,8 @@ export abstract class NoiseOscillator implements ComposableSourceEmitter
 
     constructor(audioContext: AudioContext)
     {
+        super();
+
         this.audioContext = audioContext;
 
         // Initialize the buffer (it does not actually fill with the implementation-specific noise signal)
@@ -44,6 +46,52 @@ export abstract class NoiseOscillator implements ComposableSourceEmitter
 
         /* Set the array of 'EndableNodes' (nodes with 'onended' event) */
         this.setEndableNodes();
+    }
+
+    // Method inherited from interface 'RestartableSourceEmitter'
+    public override getOutputNode(): AudioNode { return this.outputNode; }
+
+    // Method inherited from interface 'RestartableSourceEmitter'
+    protected override getEndableNodes(): EndableNode[] { return this.endableNodes; }
+
+    // Method inherited from 'RestartableSourceEmitter' abstract class
+    protected override setEndableNodes(): void
+    {
+        // Clear the array
+        this.endableNodes.length = 0;
+
+        // Add the required nodes
+        this.endableNodes.push(this.noiseOsc);
+    }
+
+    // Method inherited from interface 'RestartableSourceEmitter'
+    protected override initNodes(): void
+    {
+        this.noiseOsc = this.audioContext.createBufferSource();
+
+        this.noiseOsc.buffer = this.noiseBuffer;
+        this.noiseOsc.loop = true;
+
+        this.noiseOsc.connect(this.outputNode);
+    }
+
+    // Method inherited from interface 'RestartableSourceEmitter'
+    protected override startNodes(): void
+    {
+        this.noiseOsc.start(this.audioContext.currentTime);
+    }
+
+    // Method inherited from interface 'RestartableSourceEmitter'
+    protected override stopNodes(): void
+    {
+        this.noiseOsc.stop(this.audioContext.currentTime);
+    }
+
+    // Method inherited from interface 'RestartableSourceEmitter'
+    protected disconnectNodes(): void
+    {
+        // Disconnect nodes in the reverse order they were connected in
+        this.noiseOsc.disconnect(this.outputNode);
     }
 
     /* This method is supposed to fill the buffer with a specific noise (white, pink or brown);
@@ -87,51 +135,5 @@ export abstract class NoiseOscillator implements ComposableSourceEmitter
         const bufferData = this.noiseBuffer.getChannelData(0);
         this.fillNoiseBuffer(bufferData); // use abstract method to fill buffer with implementation-specific noise
         this.normalizeNoiseBuffer();
-    }
-
-    // Method inherited from interface 'ChildSourceEmitter'
-    public getOutputNode(): AudioNode { return this.outputNode; }
-
-    // Method inherited from interface 'ChildSourceEmitter'
-    public getEndableNodes(): EndableNode[] { return this.endableNodes; }
-
-    // Method inherited from 'ChildSourceEmitter' abstract class
-    public setEndableNodes(): void
-    {
-        // Clear the array
-        this.endableNodes.length = 0;
-
-        // Add the required nodes
-        this.endableNodes.push(this.noiseOsc);
-    }
-
-    // Method inherited from interface 'ChildSourceEmitter'
-    public initNodes(): void
-    {
-        this.noiseOsc = this.audioContext.createBufferSource();
-
-        this.noiseOsc.buffer = this.noiseBuffer;
-        this.noiseOsc.loop = true;
-
-        this.noiseOsc.connect(this.outputNode);
-    }
-
-    // Method inherited from interface 'ChildSourceEmitter'
-    public startNodes(delayDuration: number): void
-    {
-        this.noiseOsc.start(this.audioContext.currentTime + delayDuration);
-    }
-
-    // Method inherited from interface 'ChildSourceEmitter'
-    public stopNodes(delayDuration: number): void
-    {
-        this.noiseOsc.stop(this.audioContext.currentTime + delayDuration);
-    }
-
-    // Method inherited from interface 'ChildSourceEmitter'
-    public disconnectNodes(): void
-    {
-        // Disconnect nodes in the reverse order they were connected in
-        this.noiseOsc.disconnect(this.outputNode);
     }
 }

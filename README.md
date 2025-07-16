@@ -1,3 +1,10 @@
+# restartable-source-emitter branch
+This branch implements a restarble audio source node (an "emitter). Most of the times it will be an oscillator, but could also be something else such as a constant signal or noise signal.
+
+The restartable "emitters" can be composed togheter, but only with other restartable emitters (only with "leafs").
+They cannot be composed togheter with "branches" (higher-level nodes already made up of one or multiple
+restartable emitters), but only with "leafs", e.g. with other restartable emitters. 
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
