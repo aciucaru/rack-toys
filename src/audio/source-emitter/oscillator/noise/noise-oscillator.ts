@@ -2,7 +2,7 @@ import { Settings } from "../../../../constants/settings";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import { type EndableNode, RestartableSourceEmitter } from "../../../core/emitter";
+import { type EndableNode, RestartableSourceGenerator } from "../../../core/emitter";
 
 
 /* Base abstract class for all custom noise oscillators.
@@ -10,7 +10,7 @@ import { type EndableNode, RestartableSourceEmitter } from "../../../core/emitte
 ** fillNoiseBuffer()
 ** The 'fillNoiseBuffer()' method must be implemented by a concrete class and must fill a bufer with the actual noise,
 ** which will differ depending on the noise type (white, pink, brown, etc.). */
-export abstract class NoiseOscillator extends RestartableSourceEmitter
+export abstract class NoiseOscillator extends RestartableSourceGenerator
 {
     private audioContext: AudioContext;
 

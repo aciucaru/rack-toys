@@ -1,7 +1,7 @@
 import { Settings } from "../../../constants/settings";
 import { audioContext } from "../../../constants/shareable-audio-nodes";
 
-import type { IntermediateEmitter } from "../../core/emitter";
+import type { Emitter } from "../../core/emitter";
 
 import { Note12TET } from "../../note/note";
 
@@ -12,7 +12,7 @@ import type { ILogObj } from "tslog";
 import { PulseOscillator } from "../../source-emitter/oscillator/melodic/pulse-oscillator";
 
 
-export class TestSynth1 implements IntermediateEmitter, MonoSynth
+export class TestSynth1 implements Emitter, MonoSynth
 {
     private audioContext: AudioContext;
 
@@ -68,7 +68,7 @@ export class TestSynth1 implements IntermediateEmitter, MonoSynth
         // then trigger the ADSR envelope for the voice
         // this.voiceAdsrEnvelope.startSignal(0);
 
-        this.oscillator.startSignal();
+        this.oscillator.startSource();
     }
 
     // Method inherited from 'MonoSynth' interface
@@ -78,7 +78,7 @@ export class TestSynth1 implements IntermediateEmitter, MonoSynth
 
         // stop the ADSR envelope for the voice
         // this.voiceAdsrEnvelope.stopSignal(0);
-        this.oscillator.stopSignal();
+        this.oscillator.stopSource();
     }
 
     public setMainGain(gain: number): void

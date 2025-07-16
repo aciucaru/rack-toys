@@ -2,7 +2,7 @@ import { Settings } from "../../../../constants/settings";
 import { PulseOscillator } from "./pulse-oscillator";
 import { ToggleMixer } from "../../../intermediate-emitter/mixer/toggle-mixer";
 
-import { RestartableSourceEmitter, SourceEmitter } from "../../../core/emitter";
+import { RestartableSourceGenerator, ChildGenerator } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
 
 import { Logger } from "tslog";
@@ -10,7 +10,7 @@ import type { ILogObj } from "tslog";
 import { SimpleOscillator, SimpleWaveshape } from "./simple-oscillator";
 
 
-export class TripleShapeOscillator extends SourceEmitter implements FrequencyBasedSignal, PulseBasedSignal
+export class TripleShapeOscillator extends ChildGenerator implements FrequencyBasedSignal, PulseBasedSignal
 {
     private audioContext: AudioContext;
 
@@ -20,7 +20,7 @@ export class TripleShapeOscillator extends SourceEmitter implements FrequencyBas
     private sawOscillatorNode: SimpleOscillator;
     private pulseOscillatorNode: PulseOscillator;
 
-    private restartableNodes: Array<RestartableSourceEmitter>;
+    private restartableNodes: Array<RestartableSourceGenerator>;
 
     // The mixer that toggles on/off the oscillator nodes
     // Must be initialized somewere inside the constructor, in this case the initNodes() method
@@ -70,7 +70,7 @@ export class TripleShapeOscillator extends SourceEmitter implements FrequencyBas
         // Connect the result (of mixing the 3 oscillators) to the output gain node
         this.toggleMixer.getOutputNode().connect(this.outputNode);
 
-        this.restartableNodes = new Array<RestartableSourceEmitter>();
+        this.restartableNodes = new Array<RestartableSourceGenerator>();
         this.restartableNodes.push(this.sawOscillatorNode);
         this.restartableNodes.push(this.triangleOscillatorNode);
         this.restartableNodes.push(this.pulseOscillatorNode);
@@ -80,7 +80,7 @@ export class TripleShapeOscillator extends SourceEmitter implements FrequencyBas
     public override getOutputNode(): AudioNode { return this.outputNode; }
 
     // Method inherited from 'SourceEmitter' abstract class
-    protected override getRestartableNodes(): RestartableSourceEmitter[]
+    protected override getRestartableGenerators(): RestartableSourceGenerator[]
     {
         return this.restartableNodes;
     }

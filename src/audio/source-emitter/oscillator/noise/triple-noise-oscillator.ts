@@ -1,5 +1,5 @@
 import { Settings } from "../../../../constants/settings";
-import { type EndableNode, RestartableSourceEmitter, SourceEmitter } from "../../../core/emitter";
+import { type EndableNode, RestartableSourceGenerator, ChildGenerator } from "../../../core/emitter";
 import { WhiteNoiseOscillator } from "./white-noise";
 import { PinkNoiseOscillator } from "./pink-noise";
 import { BrownNoiseOscillator } from "./brown-noise";
@@ -25,7 +25,7 @@ export const NoiseType =
 
 export type NoiseType = (typeof NoiseType)[keyof typeof NoiseType];
 
-export class TripleNoiseOscillator extends SourceEmitter
+export class TripleNoiseOscillator extends ChildGenerator
 {
     private audioContext: AudioContext;
 
@@ -34,7 +34,7 @@ export class TripleNoiseOscillator extends SourceEmitter
     private pinkNoiseOscNode!: PinkNoiseOscillator;
     private brownNoiseOscNode!: BrownNoiseOscillator;
 
-    private restartableNodes: Array<RestartableSourceEmitter>;
+    private restartableNodes: Array<RestartableSourceGenerator>;
 
     // The mixer that toggles on/off the oscillator nodes
     // Must be initialized somewere inside the constructor, in this case the initNodes() method
@@ -95,7 +95,7 @@ export class TripleNoiseOscillator extends SourceEmitter
         /* Set the array of 'EndableNodes' (nodes with 'onended' event) */
         // this.setEndableNodes();
 
-        this.restartableNodes = new Array<RestartableSourceEmitter>();
+        this.restartableNodes = new Array<RestartableSourceGenerator>();
         this.restartableNodes.push(this.whiteNoiseOscNode);
         this.restartableNodes.push(this.pinkNoiseOscNode);
         this.restartableNodes.push(this.brownNoiseOscNode);
@@ -105,7 +105,7 @@ export class TripleNoiseOscillator extends SourceEmitter
     public override getOutputNode(): AudioNode { return this.outputNode; }
 
     // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected getRestartableNodes(): RestartableSourceEmitter[]
+    protected getRestartableGenerators(): RestartableSourceGenerator[]
     {
         return this.restartableNodes;
     }
