@@ -1,9 +1,11 @@
-# restartable-source-emitter branch
+# restartable-source-emitter-composable-branches branch
 This branch implements a restarble audio source node (an "emitter). Most of the times it will be an oscillator, but could also be something else such as a constant signal or noise signal.
 
-The restartable "emitters" can be composed togheter, but only with other restartable emitters (only with "leafs").
+The restartable "emitters" ("leafs") can be composed togheter, but only with other restartable emitters (only with "leafs").
 They cannot be composed togheter with "branches" (higher-level nodes already made up of one or multiple
-restartable emitters), but only with "leafs", e.g. with other restartable emitters. 
+restartable emitters), but only with "leafs", e.g. with other restartable emitters.
+
+But, in this branch, the composed "emitters" ("branches") can be composed togheter, e.g. we cannot compose "leafs" togheter but we can compose "branches" as much as we want.
 
 # React + TypeScript + Vite
 
