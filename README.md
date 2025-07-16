@@ -7,6 +7,14 @@ restartable emitters), but only with "leafs", e.g. with other restartable emitte
 
 But, in this branch, the composed "emitters" ("branches") can be composed togheter, e.g. we cannot compose "leafs" togheter but we can compose "branches" as much as we want.
 
+An "emitter" is a node that has an ouput (it putputs something, it emits something).
+This branch has the following types of "emitter" classes and interface:
+- interface **Emitter**: has one method to return the output node, **getOuptuNode()
+- abstract class **RestartableSourceGenerator**: this is the class that represents a 'child' node, which is basically the first source of signal in an audio graph
+- interface **ComposableGenerator**: represents a node that can be composed togheter with other 'ComposableGenerators', through composition (not inheritance) and by connecting them to the same output node
+- abstract class **ChildGenerator**: this is the source to which one or multiple 'RestartableSourceEmitters' will connect to (it's bassically a 'sink' for 'RestartableSourceGenerators'); this is also a 'ComposableGenerator'
+- abstract class **CompositeGenerator**: this is a node that is supposed to be made of one or mulptiple 'ComposableGenerator' nodes; this is also a 'ComposableGenerator' so it can be composed even further
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
