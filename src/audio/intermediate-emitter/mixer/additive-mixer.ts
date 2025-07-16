@@ -1,5 +1,5 @@
 import { Settings } from "../../../constants/settings";
-import type { IntermediateEmitter } from "../../core/emitter";
+import type { Emitter } from "../../core/emitter";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
@@ -20,7 +20,7 @@ interface AdditiveInput
 **   Removing inputs is currently not possible.
 **   The inputs are stored in a unidimensional array and are accessed by their index, so reordering the inputs is not possible,
 ** once an input has been added, it holds it's index in the array. */
-export class AdditiveMixer implements IntermediateEmitter
+export class AdditiveMixer implements Emitter
 {
     private audioContext: AudioContext;
     

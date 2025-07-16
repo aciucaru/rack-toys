@@ -1,7 +1,7 @@
 import { Settings } from "../../../constants/settings";
 import { audioContext } from "../../../constants/shareable-audio-nodes";
 
-import type { IntermediateEmitter } from "../../core/emitter";
+import type { Emitter } from "../../core/emitter";
 
 import { Note12TET } from "../../note/note";
 
@@ -19,7 +19,7 @@ import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 
 
-export class AnalogMonoSynth implements IntermediateEmitter, MonoSynth
+export class AnalogMonoSynth implements Emitter, MonoSynth
 {
     private audioContext: AudioContext;
 
@@ -119,9 +119,9 @@ export class AnalogMonoSynth implements IntermediateEmitter, MonoSynth
         this.multiShapeOscillator2.setFrequency(this.note.getFreq());
 
         // then trigger the ADSR envelope for the voice
-        this.voiceAdsrEnvelope.startSignal(0);
+        this.voiceAdsrEnvelope.startSource(0);
         // and then trigger the ADSR envelopr for the filter as well
-        this.filterNode.getAdsrEnvelope().startSignal(0);
+        this.filterNode.getAdsrEnvelope().startSource(0);
     }
 
     // Method inherited from 'MonoSynth' interface
@@ -130,9 +130,9 @@ export class AnalogMonoSynth implements IntermediateEmitter, MonoSynth
         AnalogMonoSynth.logger.debug(`noteOff()`);
 
         // stop the ADSR envelope for the voice
-        this.voiceAdsrEnvelope.stopSignal(0);
+        this.voiceAdsrEnvelope.stopSource(0);
         // stop the ADSR envelope for rhe filter as well
-        this.filterNode.getAdsrEnvelope().stopSignal(0);
+        this.filterNode.getAdsrEnvelope().stopSource(0);
     }
 
     // Method inherited from 'MonoSynth' interface

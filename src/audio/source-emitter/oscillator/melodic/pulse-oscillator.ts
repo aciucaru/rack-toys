@@ -1,14 +1,14 @@
 import { Settings } from "../../../../constants/settings";
 import { NoteSettings } from "../../../../constants/note-settings";
 
-import { RestartableSourceEmitter, type EndableNode } from "../../../core/emitter";
+import { RestartableSourceGenerator, type EndableNode } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 
 
-export class PulseOscillator extends RestartableSourceEmitter implements FrequencyBasedSignal, PulseBasedSignal
+export class PulseOscillator extends RestartableSourceGenerator implements FrequencyBasedSignal, PulseBasedSignal
 {
     private audioContext: AudioContext;
 

@@ -1,6 +1,6 @@
-import type { IntermediateEmitter } from "../../core/emitter";
+import type { Emitter } from "../../core/emitter";
 
-export class BinaryInterpolatorMixer implements IntermediateEmitter
+export class BinaryInterpolatorMixer implements Emitter
 {
     private audioContext: AudioContext;
 

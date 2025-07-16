@@ -1,5 +1,5 @@
 import { Settings } from "../../../constants/settings";
-import type { IntermediateEmitter } from "../../core/emitter";
+import type { Emitter } from "../../core/emitter";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
@@ -18,7 +18,7 @@ interface ToggledInput
 **   This class allows adding new input nodes and allows muting/unmuting each input.
 **   The inputs are stored in a unidimensional array and are accessed by their index, so reordering the inputs is not possible,
 ** once an input has been added, it holds it's index in the array. */
-export class ToggleMixer implements IntermediateEmitter
+export class ToggleMixer implements Emitter
 {
     private audioContext: AudioContext;
 

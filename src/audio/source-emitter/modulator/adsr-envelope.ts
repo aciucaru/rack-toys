@@ -2,7 +2,7 @@ import { Settings } from "../../../constants/settings";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import { RestartableSourceEmitter, type EndableNode } from "../../core/emitter";
+import { RestartableSourceGenerator, type EndableNode } from "../../core/emitter";
 
 
 /* General-purpose ADSR envelope; this envelope does not have a predefined min and max value,
@@ -28,7 +28,7 @@ import { RestartableSourceEmitter, type EndableNode } from "../../core/emitter";
 ** That emitter is a ConstanSourceNode, which is fed through the GainNode.
 ** Whithout the ConstantSourceNode, the ADSR envelope will not work, because it won't emit any signal. */
 
-export class AdsrEnvelopeSource extends RestartableSourceEmitter
+export class AdsrEnvelopeSource extends RestartableSourceGenerator
 {
     /* the audio context used to create and connect nodes; must be supplied from outside the class */
     private audioContext: AudioContext;
