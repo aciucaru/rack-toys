@@ -2,7 +2,7 @@ import React from "react";
 import styles from './AnalogSynth.module.css';
 
 import { Settings } from "../../constants/settings";
-import { testPolySynth1 } from "../../audio/synth/virtual-analog/test-synth1";
+import { testPolySynth } from "../../audio/synth/virtual-analog/test-synth";
 // import * as oscCallbacks from "../../../callbacks/oscillators-callbacks";
 // import * as mixerCallbacks from "../../../callbacks/mixer-callbacks";
 
