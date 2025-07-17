@@ -1,19 +1,8 @@
-# restartable-source-emitter-composable-branches branch
-This branch implements a restarble audio source node (an "emitter). Most of the times it will be an oscillator, but could also be something else such as a constant signal or noise signal.
+# mono-synth branch
+This branch is made in order to polish the abstract classes and interfaces design for a 'mono synth', which is basically
+a single voice.
 
-The restartable "emitters" ("leafs") can be composed togheter, but only with other restartable emitters (only with "leafs").
-They cannot be composed togheter with "branches" (higher-level nodes already made up of one or multiple
-restartable emitters), but only with "leafs", e.g. with other restartable emitters.
-
-But, in this branch, the composed "emitters" ("branches") can be composed togheter, e.g. we cannot compose "leafs" togheter but we can compose "branches" as much as we want.
-
-An "emitter" is a node that has an ouput (it putputs something, it emits something).
-This branch has the following types of "emitter" classes and interface:
-- interface **Emitter**: has one method to return the output node, **getOuptuNode()
-- abstract class **RestartableSourceGenerator**: this is the class that represents a 'child' node, which is basically the first source of signal in an audio graph
-- interface **ComposableGenerator**: represents a node that can be composed togheter with other 'ComposableGenerators', through composition (not inheritance) and by connecting them to the same output node
-- abstract class **ChildGenerator**: this is the source to which one or multiple 'RestartableSourceEmitters' will connect to (it's bassically a 'sink' for 'RestartableSourceGenerators'); this is also a 'ComposableGenerator'
-- abstract class **CompositeGenerator**: this is a node that is supposed to be made of one or mulptiple 'ComposableGenerator' nodes; this is also a 'ComposableGenerator' so it can be composed even further
+These abstract classes and interfaces will then be used by all synthesizers in the this project.
 
 # React + TypeScript + Vite
 
