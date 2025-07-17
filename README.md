@@ -1,6 +1,5 @@
-# mono-synth branch
-This branch is made in order to polish the abstract classes and interfaces design for a 'mono synth', which is basically
-a single voice.
+# poly-synth branch
+This branch is made in order to polish the abstract classes and interfaces design for a 'poly synth', which is basically a polyphonic synthesizer wich use many internal mono synthesizers.
 
 These abstract classes and interfaces will then be used by all synthesizers in the this project.
 
