@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./InvisibleKeyboard.module.css";
 
 import { Settings } from "../../constants/settings";
-import { testPolySynth1 } from "../../audio/synth/virtual-analog/test-synth1";
+import { testPolySynth } from "../../audio/synth/virtual-analog/test-synth";
 // import { monoSynth } from "../../audio/synth/virtual-analog/analog-synth";
 
 import { Logger } from "tslog";
@@ -232,102 +232,181 @@ interface KeyboardProps
 
 const logger = new Logger({ name: "Keyboard", minLevel: Settings.minLogLevel });
 
-export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
-{
-    const [audioUnlocked, setAudioUnlocked] = useState(false);
-    const isKeyPressed = useRef(false);
+// export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
+// {
+//     const [audioUnlocked, setAudioUnlocked] = useState(false);
+//     const isKeyPressed = useRef(false);
 
-    const startNote = (octave: number, semitone: number) =>
-    {
-        logger.debug(`startNote(): octave = ${octave}, semitone = ${semitone}`);
-        isKeyPressed.current = true;
+//     const startNote = (octave: number, semitone: number) =>
+//     {
+//         logger.debug(`startNote(): octave = ${octave}, semitone = ${semitone}`);
+//         isKeyPressed.current = true;
 
-        const midiNote = `${octave}${semitone}`;
-        testPolySynth1.noteOn(midiNote, octave + startOctave, semitone);
-    };
+//         const midiNote = `${octave}${semitone}`;
+//         testPolySynth.noteOn(midiNote, octave + startOctave, semitone);
+//     };
 
-    const onKeyDown = (event: KeyboardEvent) =>
-    {
-        if (!audioUnlocked) return;
+//     const onKeyDown = (event: KeyboardEvent) =>
+//     {
+//         if (!audioUnlocked) return;
 
-        event.preventDefault();
-        if (event.key && !isKeyPressed.current)
-        {
-            const map: Record<string, [number, number]> =
-            {
-                a: [2, 0],
-                w: [2, 1],
-                s: [2, 2],
-                e: [2, 3],
-                d: [2, 4],
-                f: [2, 5],
-                t: [2, 6],
-                g: [2, 7],
-                y: [2, 8],
-                h: [2, 9],
-                u: [2, 10],
-                j: [2, 11],
-                k: [3, 0],
-                o: [3, 1],
-                l: [3, 2],
-                };
+//         event.preventDefault();
+//         if (event.key && !isKeyPressed.current)
+//         {
+//             const map: Record<string, [number, number]> =
+//             {
+//                 a: [2, 0],
+//                 w: [2, 1],
+//                 s: [2, 2],
+//                 e: [2, 3],
+//                 d: [2, 4],
+//                 f: [2, 5],
+//                 t: [2, 6],
+//                 g: [2, 7],
+//                 y: [2, 8],
+//                 h: [2, 9],
+//                 u: [2, 10],
+//                 j: [2, 11],
+//                 k: [3, 0],
+//                 o: [3, 1],
+//                 l: [3, 2],
+//                 };
 
-                const key = event.key.toLowerCase();
-                if (map[key]) {
-                const [octave, semitone] = map[key];
-                startNote(octave, semitone);
-            }
-        }
-    };
+//                 const key = event.key.toLowerCase();
+//                 if (map[key]) {
+//                 const [octave, semitone] = map[key];
+//                 startNote(octave, semitone);
+//             }
+//         }
+//     };
 
-    const onKeyUp = (event: KeyboardEvent) =>
-    {
-        if (!audioUnlocked) return;
+//     const onKeyUp = (event: KeyboardEvent) =>
+//     {
+//         if (!audioUnlocked) return;
 
-        event.preventDefault();
-        logger.debug("onKeyUp(): released key");
-        if (isKeyPressed.current)
-        {
-            isKeyPressed.current = false;
-            const midiNote = ""; // actual implemntation is missing, this is just a dummy string
-            testPolySynth1.noteOff(midiNote);
-        }
-    };
+//         event.preventDefault();
+//         logger.debug("onKeyUp(): released key");
+//         if (isKeyPressed.current)
+//         {
+//             isKeyPressed.current = false;
+//             const midiNote = ""; // actual implemntation is missing, this is just a dummy string
+//             testPolySynth.noteOff(midiNote);
+//         }
+//     };
 
-    const unlockAudio = async () =>
-    {
-        try
-        {
-        //   await testMonoSynth1.resume(); // This should succeed due to the click
-            testPolySynth1.resume(); // This should succeed due to the click
-            setAudioUnlocked(true);
-            logger.info("Audio unlocked");
-        }
-        catch (error) { logger.error("Failed to unlock audio", error); }
-    };
+//     const unlockAudio = async () =>
+//     {
+//         try
+//         {
+//         //   await testMonoSynth1.resume(); // This should succeed due to the click
+//             testPolySynth.resume(); // This should succeed due to the click
+//             setAudioUnlocked(true);
+//             logger.info("Audio unlocked");
+//         }
+//         catch (error) { logger.error("Failed to unlock audio", error); }
+//     };
 
-    useEffect(() =>
-    {
-        if (audioUnlocked)
-        {
-            window.addEventListener("keydown", onKeyDown);
-            window.addEventListener("keyup", onKeyUp);
+//     useEffect(() =>
+//     {
+//         if (audioUnlocked)
+//         {
+//             window.addEventListener("keydown", onKeyDown);
+//             window.addEventListener("keyup", onKeyUp);
             
-            return () =>
-            {
-                window.removeEventListener("keydown", onKeyDown);
-                window.removeEventListener("keyup", onKeyUp);
-            };
-        }
-    }, [audioUnlocked]);
+//             return () =>
+//             {
+//                 window.removeEventListener("keydown", onKeyDown);
+//                 window.removeEventListener("keyup", onKeyUp);
+//             };
+//         }
+//     }, [audioUnlocked]);
+
+//   return (
+//     <>
+//       {!audioUnlocked && (
+//         <button onClick={unlockAudio}>Click to Enable Audio</button>
+//       )}
+//     </>
+//   );
+// };
+
+
+export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps) {
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+
+  // track which physical keys are down
+  const pressedKeys = useRef<Set<string>>(new Set());
+
+  // QWERTY-to-(octave,semitone) mapping
+  const keyMap: Record<string, [number, number]> = {
+    a: [2, 0],  w: [2, 1],  s: [2, 2],  e: [2, 3],
+    d: [2, 4],  f: [2, 5],  t: [2, 6],  g: [2, 7],
+    y: [2, 8],  h: [2, 9],  u: [2, 10], j: [2, 11],
+    k: [3, 0],  o: [3, 1],  l: [3, 2],
+  };
+
+  const unlockAudio = async () => {
+    try {
+      await testPolySynth.resume();
+      setAudioUnlocked(true);
+      logger.info("Audio unlocked");
+    } catch (error) {
+      logger.error("Failed to unlock audio", error);
+    }
+  };
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (!audioUnlocked) return;
+    const key = event.key.toLowerCase();
+    if (!keyMap[key]) return;
+
+    // avoid retriggering same key, and cap to 4 concurrent notes
+    if (pressedKeys.current.has(key) || pressedKeys.current.size >= 4) {
+      return;
+    }
+
+    event.preventDefault();
+    const [oct, semi] = keyMap[key];
+    const midiNote = `${oct}${semi}`;
+    logger.debug(`↓ key "${key}" → noteOn(${midiNote})`);
+    testPolySynth.noteOn(midiNote, oct + startOctave, semi);
+
+    pressedKeys.current.add(key);
+  };
+
+  const onKeyUp = (event: KeyboardEvent) => {
+    if (!audioUnlocked) return;
+    const key = event.key.toLowerCase();
+    if (!pressedKeys.current.has(key)) return;
+
+    event.preventDefault();
+    const [oct, semi] = keyMap[key];
+    const midiNote = `${oct}${semi}`;
+    logger.debug(`↑ key "${key}" → noteOff(${midiNote})`);
+    testPolySynth.noteOff(midiNote);
+
+    pressedKeys.current.delete(key);
+  };
+
+  useEffect(() => {
+    if (!audioUnlocked) return;
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, [audioUnlocked]);
 
   return (
     <>
       {!audioUnlocked && (
-        <button onClick={unlockAudio}>Click to Enable Audio</button>
+        <button onClick={unlockAudio}>
+          Click to Enable Audio
+        </button>
       )}
     </>
   );
-};
+}
 
 
