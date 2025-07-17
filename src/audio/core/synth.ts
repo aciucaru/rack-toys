@@ -1,4 +1,8 @@
+import { Settings } from "../../constants/settings";
 import type { Emitter } from "./emitter";
+
+import { Logger } from "tslog";
+import type { ILogObj } from "tslog";
 
 export interface MonoSynth extends Emitter
 {
@@ -17,6 +21,9 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
     /** which note is held by which voice */
     protected active: Map<string, M> = new Map<string, M>();
 
+    private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "PolySynth", minLevel: Settings.minLogLevel });
+    
+
     constructor() { }
     
     // Inherited from 'Emitter' interface
@@ -27,13 +34,18 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
 
     public setVoices(polyphonyCount: number)
     {
+        PolySynth.abstractClassLogger.debug(`setVoices(${polyphonyCount})`);
+
         // clear the array
         this.voices.length = 0;
+        PolySynth.abstractClassLogger.debug(`setVoices(${polyphonyCount}) after clear: ${this.voices}`);
 
         for (let i = 0; i < polyphonyCount; i++)
         {
             this.voices.push(this.createVoice());
         }
+
+        PolySynth.abstractClassLogger.debug(`setVoices(${polyphonyCount}) after recreation: ${this.voices}`);
     }
 
     public getVoices(): M[] { return this.voices; }
@@ -46,7 +58,9 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
     ** can later turn *that* voice off. */
     public noteOn(midiNote: string, octaves: number, semitones: number)
     {
-        // if this note is already down, release it first
+        PolySynth.abstractClassLogger.debug("noteOn()");
+
+        // If this note is already down, release it first
         if (this.active.has(midiNote))
         {
             this.active.get(midiNote)!.noteOff();
@@ -54,7 +68,7 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
         }
 
         // Find a free voice (or steal one if no free voice is available)
-        let voice = this.getFreeVoice();
+        const voice = this.getFreeVoice();
 
         // Play note on that voice
         voice.noteOn(octaves, semitones);
@@ -69,6 +83,7 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
         const voice = this.active.get(midiNote);
 
         if (!voice)
+            // throw new Error("noteOff(): no voice found");
             return;
 
         voice.noteOff();
@@ -115,26 +130,54 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
     //     return voice;
     // }
 
+
+    // protected getFreeVoice(): M
+    // {
+    //     // Try to find a voice not currently in use
+    //     const usedVoices = new Set(this.active.values());
+    //     let voice = this.voices.find(v => !usedVoices.has(v));
+
+    //     if (voice)
+    //         return voice;
+
+    //     // If all voices are in use, attempt to steal the oldest one
+    //     const oldestEntry = this.active.entries().next();
+
+    //     if (oldestEntry.done || !oldestEntry.value)
+    //         // throw new Error("No available voices and no active voices to steal.");
+    //         PolySynth.abstractClassLogger.error("No available voices and no active voices to steal.");
+
+    //     const [oldNote, oldestVoice] = oldestEntry.value;
+
+    //     oldestVoice.noteOff();
+    //     this.active.delete(oldNote);
+
+    //     return oldestVoice;
+    // }
+
     protected getFreeVoice(): M
     {
-        // Try to find a voice not currently in use
-        const usedVoices = new Set(this.active.values());
-        let voice = this.voices.find(v => !usedVoices.has(v));
+        // 1) look for a voice that’s not currently in use
+        const used = new Set(this.active.values());
+        const freeVoice = this.voices.find(v => !used.has(v));
+        if (freeVoice) {
+        return freeVoice;
+        }
 
-        if (voice)
-            return voice;
+        // 2) if none free, steal the _oldest_ active voice
+        //    Maps preserve insertion order: the first key() is the oldest.
+        const oldestMidiNote = this.active.keys().next().value;
+        if (typeof oldestMidiNote !== "string") {
+        // this should never happen unless active was empty,
+        // but TS wants us to handle it
+        throw new Error("PolySynth: no voices available to steal");
+        }
 
-        // If all voices are in use, attempt to steal the oldest one
-        const oldestEntry = this.active.entries().next();
+        const stolenVoice = this.active.get(oldestMidiNote)!;
+        // turn it off and remove from the map
+        stolenVoice.noteOff();
+        this.active.delete(oldestMidiNote);
 
-        if (oldestEntry.done || !oldestEntry.value)
-            throw new Error("No available voices and no active voices to steal.");
-
-        const [oldNote, oldestVoice] = oldestEntry.value;
-
-        oldestVoice.noteOff();
-        this.active.delete(oldNote);
-
-        return oldestVoice;
+        return stolenVoice;
     }
 }
