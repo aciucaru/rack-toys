@@ -1,4 +1,6 @@
-export interface MonoSynth
+import type { Emitter } from "./emitter";
+
+export interface MonoSynth extends Emitter
 {
     noteOn(octaves: number, semitones: number): void;
 
@@ -7,36 +9,42 @@ export interface MonoSynth
     // noteOnOff(octaves: number, semitones: number, duration: number): void;
 }
 
-
-abstract class PolySynth<M extends MonoSynth>
+export abstract class PolySynth<M extends MonoSynth> implements Emitter
 {
     /** the pool of all voices */
     protected voices: M[] = [];
 
     /** which note is held by which voice */
-    protected active: Map<number, M> = new Map();
+    protected active: Map<string, M> = new Map<string, M>();
 
-    /**
-     * @param voiceCount how many simultaneous notes the synth has
-     */
-    constructor(voiceCount: number)
+    constructor() { }
+    
+    // Inherited from 'Emitter' interface
+    public abstract getOutputNode(): AudioNode;
+
+    /* Any subclass must implement this method and return a newly created MonoSynth */
+    protected abstract createVoice(): M;
+
+    public setVoices(polyphonyCount: number)
     {
-        for (let i = 0; i < voiceCount; i++)
+        // clear the array
+        this.voices.length = 0;
+
+        for (let i = 0; i < polyphonyCount; i++)
         {
             this.voices.push(this.createVoice());
         }
     }
 
-    /* Any subclass must implement this method and return a newly created MonoSynth */
-    protected abstract createVoice(): M;
+    public getVoices(): M[] { return this.voices; }
 
     // public noteOn(octaves: number, semitones: number): void;
     // public noteOff(octaves: number, semitones: number): void;
 
-    /* Play one new note.  Finds a free voice (or steals the oldest one),
+    /* Play one new note. Finds a free voice (or steals the oldest one),
     ** calls its noteOn(), and remembers the mapping so noteOff()
     ** can later turn *that* voice off.*/
-    noteOn(midiNote: number, velocity = 1)
+    public noteOn(midiNote: string, octaves: number, semitones: number)
     {
         // if this note is already down, release it first
         if (this.active.has(midiNote))
@@ -49,7 +57,7 @@ abstract class PolySynth<M extends MonoSynth>
         let voice = this.getFreeVoice();
 
         // Play note on that voice
-        voice.noteOn(midiNote, velocity);
+        voice.noteOn(octaves, semitones);
 
         // Set the voice as being in use by the note
         this.active.set(midiNote, voice);
@@ -58,7 +66,7 @@ abstract class PolySynth<M extends MonoSynth>
     /**
      * Release exactly the voice that was playing this midiNote.
      */
-    noteOff(midiNote: number)
+    public noteOff(midiNote: string)
     {
         const voice = this.active.get(midiNote);
 
@@ -70,7 +78,7 @@ abstract class PolySynth<M extends MonoSynth>
     }
 
     /** stop all currently playing notes */
-    allNotesOff()
+    public allNotesOff()
     {
         for (const [note, voice] of this.active.entries())
         {
@@ -85,29 +93,52 @@ abstract class PolySynth<M extends MonoSynth>
      * If you ever need to grow/shrink your polyphony dynamically,
      * you can tear down old voices and remake the pool.
      */
-    setVoiceCount(n: number)
+    public setVoiceCount(n: number)
     {
         this.voices = [];
         for (let i = 0; i < n; i++) this.voices.push(this.createVoice());
     }
 
+    // protected getFreeVoice(): M
+    // {
+    //     // Find a free voice
+    //     let voice = this.voices.find(v => ![...this.active.values()].includes(v));
+
+    //     // If no voice is free
+    //     if (!voice)
+    //     {
+    //         // Then steal the oldest voice (the first voice according to insertion order)
+    //         const [oldNote, oldestVoice] = this.active.entries().next().value!;
+
+    //         oldestVoice.noteOff();
+    //         this.active.delete(oldNote);
+
+    //         voice = oldestVoice;
+    //     }
+
+    //     return voice;
+    // }
+
     protected getFreeVoice(): M
     {
-        // Find a free voice
-        let voice = this.voices.find(v => ![...this.active.values()].includes(v));
+        // Try to find a voice not currently in use
+        const usedVoices = new Set(this.active.values());
+        let voice = this.voices.find(v => !usedVoices.has(v));
 
-        // If no voice is free
-        if (!voice)
-        {
-            // Then steal the oldest voice (the first voice according to insertion order)
-            const [oldNote, oldestVoice] = this.active.entries().next().value!;
+        if (voice)
+            return voice;
 
-            oldestVoice.noteOff();
-            this.active.delete(oldNote);
+        // If all voices are in use, attempt to steal the oldest one
+        const oldestEntry = this.active.entries().next();
 
-            voice = oldestVoice;
-        }
+        if (oldestEntry.done || !oldestEntry.value)
+            throw new Error("No available voices and no active voices to steal.");
 
-        return voice;
+        const [oldNote, oldestVoice] = oldestEntry.value;
+
+        oldestVoice.noteOff();
+        this.active.delete(oldNote);
+
+        return oldestVoice;
     }
 }

@@ -5,14 +5,14 @@ import type { Emitter } from "../../core/emitter";
 
 import { Note12TET } from "../../note/note";
 
-import type { MonoSynth } from "../../core/synth";
+import { PolySynth, type MonoSynth } from "../../core/synth";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 import { PulseOscillator } from "../../source-emitter/oscillator/melodic/pulse-oscillator";
 
 
-export class TestSynth1 implements Emitter, MonoSynth
+export class TestMonoSynth1 implements MonoSynth
 {
     private audioContext: AudioContext;
 
@@ -25,9 +25,9 @@ export class TestSynth1 implements Emitter, MonoSynth
     // private voiceAdsrGainNode: GainNode;
 
     // the final node
-    private outputGainNode: GainNode;
+    private outputNode: GainNode;
 
-    private static readonly logger: Logger<ILogObj> = new Logger({name: "TestSynth1", minLevel: Settings.minLogLevel});
+    private static readonly logger: Logger<ILogObj> = new Logger({name: "TestMonoSynth1", minLevel: Settings.minLogLevel});
 
     constructor(audioContext: AudioContext)
     {
@@ -38,27 +38,24 @@ export class TestSynth1 implements Emitter, MonoSynth
         this.oscillator = new PulseOscillator(this.audioContext);
 
         // instantiate and set the final gain node
-        this.outputGainNode = this.audioContext.createGain();
-        this.outputGainNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
+        this.outputNode = this.audioContext.createGain();
+        this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
 
         // the filtered oscillators are taken from the filter output
-        this.oscillator.getOutputNode().connect(this.outputGainNode);
+        this.oscillator.getOutputNode().connect(this.outputNode);
         this.oscillator.setFrequency(this.note.getFreq());
-
-        // finally, connect the output from the GainNode modulated by ADSR to the final output GainNode
-        // this.voiceAdsrGainNode.connect(this.outputGainNode);
-        this.outputGainNode.connect(this.audioContext.destination);
     }
 
+    // Method inheritted from 'Emitter' interface
     public getOutputNode(): AudioNode
     {
-        return this.outputGainNode;
+        return this.outputNode;
     }
 
     // Method inherited from 'MonoSynth' interface
     public noteOn(octaves: number, semitones: number): void
     {
-        TestSynth1.logger.debug(`noteOn(octaves = ${octaves}, semitones = ${semitones})`);
+        TestMonoSynth1.logger.debug(`noteOn(octaves = ${octaves}, semitones = ${semitones})`);
 
         this.note.setOctavesAndSemitones(octaves, semitones);
 
@@ -74,33 +71,75 @@ export class TestSynth1 implements Emitter, MonoSynth
     // Method inherited from 'MonoSynth' interface
     public noteOff(): void
     {
-        TestSynth1.logger.debug(`noteOff()`);
+        TestMonoSynth1.logger.debug(`noteOff()`);
 
         // stop the ADSR envelope for the voice
         // this.voiceAdsrEnvelope.stopSignal(0);
         this.oscillator.stopSource();
     }
 
+    public getOscillator(): PulseOscillator { return this.oscillator; }
+
+    // public getAdsrEnvelope(): AdsrEnvelopeSource { return this.voiceAdsrEnvelope; }
+}
+
+export class TestPolySynth1 extends PolySynth<TestMonoSynth1> implements Emitter
+{
+    private audioContext: AudioContext;
+
+    // the final node
+    private outputNode: GainNode;
+
+    private static readonly logger: Logger<ILogObj> = new Logger({name: "TestPolySynth1", minLevel: Settings.minLogLevel});
+
+    constructor(audioContext: AudioContext, polyphonyCount: number)
+    {
+        super();
+
+        this.audioContext = audioContext;
+
+        // Instantiate 'voices' (the monosynths)
+        this.setVoices(polyphonyCount);
+
+        // instantiate and set the final gain node
+        this.outputNode = this.audioContext.createGain();
+        this.outputNode.gain.setValueAtTime(Settings.maxVoiceGain, this.audioContext.currentTime);
+
+        // connect individual voices to the final output node
+        for (const voice of this.getVoices())
+        {
+            voice.getOutputNode().connect(this.outputNode);
+        }
+
+        this.outputNode.connect(this.audioContext.destination);
+    }
+
+    // Inherited from PolySynth abstract class
+    protected createVoice(): TestMonoSynth1
+    {
+        return new TestMonoSynth1(this.audioContext);
+    }
+
+    // Inherited from Emitter interface
+    getOutputNode(): AudioNode
+    {
+        return this.outputNode;
+    }
+
     public setMainGain(gain: number): void
     {
         if (Settings.minVoiceGain <= gain && gain <= Settings.maxVoiceGain)
         {
-            TestSynth1.logger.debug(`setGain(${gain})`);
+            TestPolySynth1.logger.debug(`setGain(${gain})`);
 
             const currentTime = this.audioContext.currentTime;
 
             // set the new value
-            this.outputGainNode.gain.linearRampToValueAtTime(gain, currentTime + 0.1);
+            this.outputNode.gain.linearRampToValueAtTime(gain, currentTime + 0.1);
         }
         else
-            TestSynth1.logger.warn(`setGain(${gain}): value outside bounds`);
+            TestPolySynth1.logger.warn(`setGain(${gain}): value outside bounds`);
     }
-
-    public outputNode(): GainNode { return this.outputGainNode; }
-
-    public getOscillator(): PulseOscillator { return this.oscillator; }
-
-    // public getAdsrEnvelope(): AdsrEnvelopeSource { return this.voiceAdsrEnvelope; }
 
     public getAudioContext(): AudioContext { return this.audioContext; }
 
@@ -111,4 +150,4 @@ export class TestSynth1 implements Emitter, MonoSynth
     }
 }
 
-export const testMonoSynth1 = new TestSynth1(audioContext);
+export const testPolySynth1 = new TestPolySynth1(audioContext, 5);
