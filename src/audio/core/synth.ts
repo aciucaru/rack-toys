@@ -43,7 +43,7 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
 
     /* Play one new note. Finds a free voice (or steals the oldest one),
     ** calls its noteOn(), and remembers the mapping so noteOff()
-    ** can later turn *that* voice off.*/
+    ** can later turn *that* voice off. */
     public noteOn(midiNote: string, octaves: number, semitones: number)
     {
         // if this note is already down, release it first
@@ -63,9 +63,7 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
         this.active.set(midiNote, voice);
     }
 
-    /**
-     * Release exactly the voice that was playing this midiNote.
-     */
+    // Release exactly the voice that was playing this midiNote
     public noteOff(midiNote: string)
     {
         const voice = this.active.get(midiNote);
@@ -77,7 +75,7 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
         this.active.delete(midiNote);
     }
 
-    /** stop all currently playing notes */
+    // Stop all currently playing notes
     public allNotesOff()
     {
         for (const [note, voice] of this.active.entries())
@@ -88,11 +86,9 @@ export abstract class PolySynth<M extends MonoSynth> implements Emitter
         this.active.clear();
     }
 
-    /**
-     * (Optional)
-     * If you ever need to grow/shrink your polyphony dynamically,
-     * you can tear down old voices and remake the pool.
-     */
+    /* (Optional)
+    ** If its necessary to grow/shrink the polyphony dynamically, we can tear down old
+    ** voices and remake the pool. */
     public setVoiceCount(n: number)
     {
         this.voices = [];
