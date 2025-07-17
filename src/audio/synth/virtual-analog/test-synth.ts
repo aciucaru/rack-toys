@@ -21,9 +21,6 @@ export class TestMonoSynth implements MonoSynth
     // the oscillators:
     private oscillator: PulseOscillator;
 
-    // private voiceAdsrEnvelope: AdsrEnvelopeSource;
-    // private voiceAdsrGainNode: GainNode;
-
     // the final node
     private outputNode: GainNode;
 
@@ -62,9 +59,6 @@ export class TestMonoSynth implements MonoSynth
         // first, set the internal note (as octaves and semitones) for all melodic oscillators
         this.oscillator.setFrequency(this.note.getFreq()); // maybe should just set octaves and semitones?
 
-        // then trigger the ADSR envelope for the voice
-        // this.voiceAdsrEnvelope.startSignal(0);
-
         this.oscillator.startSource();
     }
 
@@ -79,8 +73,6 @@ export class TestMonoSynth implements MonoSynth
     }
 
     public getOscillator(): PulseOscillator { return this.oscillator; }
-
-    // public getAdsrEnvelope(): AdsrEnvelopeSource { return this.voiceAdsrEnvelope; }
 }
 
 export class TestPolySynth extends PolySynth<TestMonoSynth> implements Emitter
