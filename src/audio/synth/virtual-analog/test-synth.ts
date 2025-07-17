@@ -36,7 +36,8 @@ export class TestMonoSynth implements MonoSynth
 
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
-        this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
+        // this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
+        this.outputNode.gain.setValueAtTime(1.0, this.audioContext.currentTime);
 
         // the filtered oscillators are taken from the filter output
         this.oscillator.getOutputNode().connect(this.outputNode);
@@ -95,7 +96,8 @@ export class TestPolySynth extends PolySynth<TestMonoSynth> implements Emitter
 
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
-        this.outputNode.gain.setValueAtTime(Settings.maxVoiceGain, this.audioContext.currentTime);
+        // this.outputNode.gain.setValueAtTime(Settings.maxVoiceGain, this.audioContext.currentTime);
+        this.outputNode.gain.setValueAtTime(1.0, this.audioContext.currentTime);
 
         // connect individual voices to the final output node
         for (const voice of this.getVoices())
