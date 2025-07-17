@@ -2,7 +2,7 @@ import React from "react";
 import styles from './AnalogSynth.module.css';
 
 import { Settings } from "../../constants/settings";
-import { testMonoSynth1 } from "../../audio/synth/virtual-analog/test-synth1";
+import { testPolySynth1 } from "../../audio/synth/virtual-analog/test-synth1";
 // import * as oscCallbacks from "../../../callbacks/oscillators-callbacks";
 // import * as mixerCallbacks from "../../../callbacks/mixer-callbacks";
 
@@ -63,7 +63,7 @@ export function AnalogSynth()
     const onOsc1PulseWidthChange = (pulseWidth: number) =>
     {
         logger.debug(`onPulseWidthChange(): new value: ${pulseWidth}`);
-        testMonoSynth1.getOscillator().setPulseWidth(pulseWidth);
+        // testPolySynth1.getOscillator().setPulseWidth(pulseWidth);
     };
 
     return (

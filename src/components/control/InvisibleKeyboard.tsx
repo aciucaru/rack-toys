@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./InvisibleKeyboard.module.css";
 
 import { Settings } from "../../constants/settings";
-import { testMonoSynth1 } from "../../audio/synth/virtual-analog/test-synth1";
+import { testPolySynth1 } from "../../audio/synth/virtual-analog/test-synth1";
 // import { monoSynth } from "../../audio/synth/virtual-analog/analog-synth";
 
 import { Logger } from "tslog";
@@ -135,6 +135,8 @@ interface KeyboardProps
 //   return <div className={styles.mainContainer}></div>;
 // };
 
+// export default Keyboard;
+
 
 // export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
 // {
@@ -226,82 +228,98 @@ interface KeyboardProps
 //   startOctave?: number;
 // }
 
+// export default Keyboard;
+
 const logger = new Logger({ name: "Keyboard", minLevel: Settings.minLogLevel });
 
 export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
 {
-  const [audioUnlocked, setAudioUnlocked] = useState(false);
-  const isKeyPressed = useRef(false);
+    const [audioUnlocked, setAudioUnlocked] = useState(false);
+    const isKeyPressed = useRef(false);
 
-  const startNote = (octave: number, semitone: number) => {
-    logger.debug(`startNote(): octave = ${octave}, semitone = ${semitone}`);
-    isKeyPressed.current = true;
-    testMonoSynth1.noteOn(octave + startOctave, semitone);
-  };
+    const startNote = (octave: number, semitone: number) =>
+    {
+        logger.debug(`startNote(): octave = ${octave}, semitone = ${semitone}`);
+        isKeyPressed.current = true;
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (!audioUnlocked) return;
+        const midiNote = `${octave}${semitone}`;
+        testPolySynth1.noteOn(midiNote, octave + startOctave, semitone);
+    };
 
-    event.preventDefault();
-    if (event.key && !isKeyPressed.current) {
-      const map: Record<string, [number, number]> = {
-        a: [2, 0],
-        w: [2, 1],
-        s: [2, 2],
-        e: [2, 3],
-        d: [2, 4],
-        f: [2, 5],
-        t: [2, 6],
-        g: [2, 7],
-        y: [2, 8],
-        h: [2, 9],
-        u: [2, 10],
-        j: [2, 11],
-        k: [3, 0],
-        o: [3, 1],
-        l: [3, 2],
-      };
+    const onKeyDown = (event: KeyboardEvent) =>
+    {
+        if (!audioUnlocked) return;
 
-      const key = event.key.toLowerCase();
-      if (map[key]) {
-        const [octave, semitone] = map[key];
-        startNote(octave, semitone);
-      }
-    }
-  };
+        event.preventDefault();
+        if (event.key && !isKeyPressed.current)
+        {
+            const map: Record<string, [number, number]> =
+            {
+                a: [2, 0],
+                w: [2, 1],
+                s: [2, 2],
+                e: [2, 3],
+                d: [2, 4],
+                f: [2, 5],
+                t: [2, 6],
+                g: [2, 7],
+                y: [2, 8],
+                h: [2, 9],
+                u: [2, 10],
+                j: [2, 11],
+                k: [3, 0],
+                o: [3, 1],
+                l: [3, 2],
+                };
 
-  const onKeyUp = (event: KeyboardEvent) => {
-    if (!audioUnlocked) return;
+                const key = event.key.toLowerCase();
+                if (map[key]) {
+                const [octave, semitone] = map[key];
+                startNote(octave, semitone);
+            }
+        }
+    };
 
-    event.preventDefault();
-    logger.debug("onKeyUp(): released key");
-    if (isKeyPressed.current) {
-      isKeyPressed.current = false;
-      testMonoSynth1.noteOff();
-    }
-  };
+    const onKeyUp = (event: KeyboardEvent) =>
+    {
+        if (!audioUnlocked) return;
 
-  const unlockAudio = async () => {
-    try {
-    //   await testMonoSynth1.resume(); // This should succeed due to the click
-      testMonoSynth1.resume(); // This should succeed due to the click
-      setAudioUnlocked(true);
-      logger.info("Audio unlocked");
-    } catch (error) {
-      logger.error("Failed to unlock audio", error);
-    }
-  };
+        event.preventDefault();
+        logger.debug("onKeyUp(): released key");
+        if (isKeyPressed.current)
+        {
+            isKeyPressed.current = false;
+            const midiNote = ""; // actual implemntation is missing, this is just a dummy string
+            testPolySynth1.noteOff(midiNote);
+        }
+    };
 
-  useEffect(() => {
-    if (audioUnlocked) {
-      window.addEventListener("keydown", onKeyDown);
-      window.addEventListener("keyup", onKeyUp);
-      return () => {
-        window.removeEventListener("keydown", onKeyDown);
-        window.removeEventListener("keyup", onKeyUp);
-      };
-    }
-  }, [audioUnlocked]);
+    const unlockAudio = async () =>
+    {
+        try
+        {
+        //   await testMonoSynth1.resume(); // This should succeed due to the click
+            testPolySynth1.resume(); // This should succeed due to the click
+            setAudioUnlocked(true);
+            logger.info("Audio unlocked");
+        }
+        catch (error) { logger.error("Failed to unlock audio", error); }
+    };
+
+    useEffect(() =>
+    {
+        if (audioUnlocked)
+        {
+            window.addEventListener("keydown", onKeyDown);
+            window.addEventListener("keyup", onKeyUp);
+            
+            return () =>
+            {
+                window.removeEventListener("keydown", onKeyDown);
+                window.removeEventListener("keyup", onKeyUp);
+            };
+        }
+    }, [audioUnlocked]);
 
   return (
     <>
@@ -312,7 +330,4 @@ export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
   );
 };
 
-// export default Keyboard;
 
-
-// export default Keyboard;
