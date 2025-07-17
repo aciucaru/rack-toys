@@ -7,7 +7,6 @@ export interface MonoSynth
     // noteOnOff(octaves: number, semitones: number, duration: number): void;
 }
 
-type NoteId = string;
 
 abstract class PolySynth<M extends MonoSynth>
 {
@@ -28,7 +27,7 @@ abstract class PolySynth<M extends MonoSynth>
         }
     }
 
-    /* Any subclass *must* implement this and return a fresh, disconnected MonoSynth */
+    /* Any subclass must implement this method and return a newly created MonoSynth */
     protected abstract createVoice(): M;
 
     // public noteOn(octaves: number, semitones: number): void;
@@ -46,18 +45,13 @@ abstract class PolySynth<M extends MonoSynth>
             this.active.delete(midiNote);
         }
 
-        // find a free voice
-        let voice = this.voices.find(v => ![...this.active.values()].includes(v));
-        // if none free, steal the first one in insertion order
-        if (!voice)
-        {
-            const [oldNote, oldestVoice] = this.active.entries().next().value!;
-            oldestVoice.noteOff();
-            this.active.delete(oldNote);
-            voice = oldestVoice;
-        }
+        // Find a free voice (or steal one if no free voice is available)
+        let voice = this.getFreeVoice();
 
+        // Play note on that voice
         voice.noteOn(midiNote, velocity);
+
+        // Set the voice as being in use by the note
         this.active.set(midiNote, voice);
     }
 
@@ -67,7 +61,10 @@ abstract class PolySynth<M extends MonoSynth>
     noteOff(midiNote: number)
     {
         const voice = this.active.get(midiNote);
-        if (!voice) return;
+
+        if (!voice)
+            return;
+
         voice.noteOff();
         this.active.delete(midiNote);
     }
@@ -96,19 +93,21 @@ abstract class PolySynth<M extends MonoSynth>
 
     protected getFreeVoice(): M
     {
-        // 1) Try to find an unused voice
-        const inUse = new Set(this.active.values());
-        for (const v of this.voices)
+        // Find a free voice
+        let voice = this.voices.find(v => ![...this.active.values()].includes(v));
+
+        // If no voice is free
+        if (!voice)
         {
-            if (!inUse.has(v))
-                return v;
+            // Then steal the oldest voice (the first voice according to insertion order)
+            const [oldNote, oldestVoice] = this.active.entries().next().value!;
+
+            oldestVoice.noteOff();
+            this.active.delete(oldNote);
+
+            voice = oldestVoice;
         }
 
-        // 2) All voices busy, so steal one (e.g. the first in Map iteration order)
-        const [oldestId, oldestVoice] = this.active.entries().next().value as [NoteId, M];
-        this.active.delete(oldestId);
-        oldestVoice.noteOff();
-
-        return oldestVoice;
+        return voice;
     }
 }
