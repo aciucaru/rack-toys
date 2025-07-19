@@ -22,7 +22,6 @@ export const NoiseType =
     Pink: "Pink",
     Brown: "Brown",
 } as const;
-
 export type NoiseType = (typeof NoiseType)[keyof typeof NoiseType];
 
 export class TripleNoiseOscillator extends ChildGenerator

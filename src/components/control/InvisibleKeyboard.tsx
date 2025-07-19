@@ -77,7 +77,7 @@ export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
 
         logger.debug(`key down "${key}" -> noteOn(): ${note.octaves}, ${note.semitones}`);
 
-        testPolySynth.noteOn(note);
+        testPolySynth.triggerAttack(note);
 
         pressedKeys.current.add(key);
     };
@@ -95,8 +95,8 @@ export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
         const note = keyMap[key];
 
         logger.debug(`key up "${key}" -> noteOn(): ${note.octaves}, ${note.semitones}`);
-        
-        testPolySynth.noteOff(note);
+
+        testPolySynth.triggerRelease(note);
 
         pressedKeys.current.delete(key);
     };

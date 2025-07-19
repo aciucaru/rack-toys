@@ -5,51 +5,101 @@ import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 import type { NoteUtils, Note } from "./note";
 
+/* Enum-style structure, in TypeScript it's more recommended to use such pattern than to use true Enums.
+** This 'enum-style' structure represents the possible states a synth voice could be in:
+** - free: the voice is not playing any sound currently and is free and can be used to play a note
+** - attack phase: the voice is not free anymore, it is playing a note and is in the 'attack phase', which
+**                 corresponds to the 'noteOn' or 'keyOn' event
+** - release phase: the voice is almost free, but it's still playing a sound; it's in the 'release phase', which
+**                  corresponds to the 'noteOff' or 'keyOff' event */
+export const VoiceState =
+{
+    Free: "Free",
+    InAttackPhase: "InAttackPhase",
+    InReleasePhase: "InReleasePhase",
+} as const;
+export type VoiceState = (typeof VoiceState)[keyof typeof VoiceState];
+
 export abstract class SynthVoice<N extends Note> implements Emitter
 {
+    protected audioContext: AudioContext;
+
     private note: N;
-    private noteTriggerTime: number = Number.MAX_VALUE;
+    private attackTriggerTime: number = Number.MAX_VALUE;
+    private releaseFinishTime: number = 0;
+    private state: VoiceState = VoiceState.Free;
+
     private _isActive: boolean = false;
     private _isReleasing: boolean = false;
 
     // The only abstract methods of this class
     protected abstract startSignal(note: N): void;
-    protected abstract releaseSignal(onReleaseFinshed: () => void): void;
+    // protected abstract releaseSignal(onReleaseFinshed: () => void): void;
+    protected abstract releaseSignal(): void;
+    protected abstract getReleaseDuration(): number;
 
     private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract MonoSynth", minLevel: Settings.minLogLevel });
 
-    constructor(note: N)
+    constructor(audioContext: AudioContext, note: N)
     {
+        this.audioContext = audioContext;
         this.note = note;
     }
 
     // Inherited from 'Emitter' interface
     public abstract getOutputNode(): AudioNode;
 
-    public isActive(): boolean { return this._isActive; }
+    // public isActive(): boolean { return this._isActive; }
 
-    public noteOn(note: N): void
+    public checkAndUpdateState(): VoiceState
+    {
+        // if (this.state === VoiceState.Free || this.state === VoiceState.InAttackPhase)
+        //     return this.state;
+
+        if (this.state === VoiceState.InReleasePhase)
+        {
+            const currentTime = this.audioContext.currentTime;
+            if (currentTime > this.releaseFinishTime)
+            {
+                this.state = VoiceState.Free;
+            }
+        }
+
+        return this.state;
+    }
+
+    public triggerAttack(note: N): void
     {
         this.note = note;
 
-        this._isActive = true;
-        this._isReleasing = false;
+        this.attackTriggerTime = this.audioContext.currentTime;
+
+        this.state = VoiceState.InAttackPhase;
+
+        // this._isActive = true;
+        // this._isReleasing = false;
 
         this.startSignal(note);
     }
 
-    public noteOff(): void
+    public triggerRelease(): void
     {
-        this._isActive = false;
+        // this._isActive = false;
         // this._isReleasing = true;
-        this._isReleasing = false;
+        // this._isReleasing = false;
 
-        this.releaseSignal(() => {this._isReleasing = false;});
+        this.releaseFinishTime = this.audioContext.currentTime + this.getReleaseDuration();
+
+        this.state = VoiceState.InReleasePhase;
+
+        // this.releaseSignal(() => {this._isReleasing = false;});
+        this.releaseSignal();
     }
 
     public getNoteData(): N { return this.note; }
 
-    public getTriggerTime(): number { return this.noteTriggerTime; }
+    public getTriggerTime(): number { return this.attackTriggerTime; }
+    // public getReleaseFinishTime(): number { return this.releaseFinishTime; }
 
     // Example releaseSignal()
     // protected releaseSignal(onReleaseFinshed: () => void)
@@ -63,6 +113,11 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     //     onReleaseFinshed();
     //     }, 500); // Match the release time 500 milisec
     // }
+
+    public toString(): string
+    {
+        return `triggerTime: ${this.attackTriggerTime}, isActive: ${this._isActive}, isReleasing: ${this._isReleasing}`;
+    }
 }
 
 export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> implements Emitter
@@ -113,56 +168,63 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     /* Play one new note. Finds a free voice (or steals the oldest one),
     ** calls its noteOn(), and remembers the mapping so noteOff()
     ** can later turn *that* voice off. */
-    public noteOn(note: N)
+    public triggerAttack(note: N)
     {
-        PolySynth.abstractClassLogger.debug("noteOn()");
-
         // Find the voice associated with the specified note
-        const voice = this.findVoiceByNote(note);
-
+        // const voice = this.findVoiceByNote(note);
         // If the voice was found, check if it's already active and then stop is
-        if (voice)
-        {
-            if (voice.isActive())
-            {
-                // Then stop the voice
-                voice.noteOff();
+        // if (voice)
+        // {
+        //     PolySynth.abstractClassLogger.debug(`triggerAttack(): ${voice?.getNoteData().toString()}`);
 
-                PolySynth.abstractClassLogger.warn(`noteOn(): found active voice associated with note: ${voice?.getNoteData().toString()}`);
-            }
-            else
-                PolySynth.abstractClassLogger.debug(`noteOn(): found inactive voice associated with note: ${voice?.getNoteData().toString()}`);
-        }
+        //     // Check the voice state
+        //     const state = voice.checkAndUpdateState();
+
+        //     if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
+        //     {
+        //         PolySynth.abstractClassLogger.warn(`triggerAttack(): requested note: ${note.toString()} already has active voice: ${voice.toString()}`);
+                
+        //         // Then stop the voice
+        //         voice.triggerRelease(); // also sets the state
+        //     }
+        //     else
+        //         PolySynth.abstractClassLogger.debug(`triggerAttack(): found inactive voice: ${voice.toString()} associated with note: ${note.toString()}`);
+        // }
 
         // Now we can try to get a free voice to play the supplied note
         // Find a free voice (or steal one if no free voice is available)
         const freeVoice = this.getFreeVoiceOrStealOldest();
 
-        if (!freeVoice)
+        if (freeVoice)
+            PolySynth.abstractClassLogger.warn(`noteOn(): free voice found or stolen: ${freeVoice.toString()}`);
+        else
             PolySynth.abstractClassLogger.warn(`noteOn(): NO VOICE IS AVAILABLE`);
 
         // Play note on that voice
-        freeVoice.noteOn(note);
+        freeVoice.triggerAttack(note);
     }
 
     // Release exactly the voice that was playing this midiNote
-    public noteOff(note: N)
+    public triggerRelease(note: N)
     {
         // Try to find the voice that is asociated with the supplied note and is also playing (is active) 
         // let voice = this.voices.find(voice => voice.getNote().equals(note) && voice.isActive());
         const voice = this.findVoiceByNote(note);
 
-        PolySynth.abstractClassLogger.debug(`noteOff() note found: ${voice?.getNoteData().toString()}`);
-
         // If the voice was found, then stop it
         if (voice)
         {
-            if (voice.isActive())
+            PolySynth.abstractClassLogger.debug(`noteOff() voice found: ${voice.toString()} for note: ${note.toString()}`);
+
+            // Check the voice state
+            const state = voice.checkAndUpdateState();
+
+            if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
                 // Then stop the voice
-                voice.noteOff();
+                voice.triggerRelease();
         }
-        // else
-        //     throw new Error("noteOff(): no voice found");
+        else
+            PolySynth.abstractClassLogger.warn(`noteOff() voice not found for note: ${note.toString()}`);
     }
 
     /* 
@@ -182,9 +244,15 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     private getFreeVoice(): V | undefined
     {
         // Try to find a voice not currently in use
-        let voice = this.voices.find(voice => !voice.isActive());
+        let voice = this.voices.find(voice => voice.checkAndUpdateState() === VoiceState.Free);
 
-        // If a free (inactive) voice was found, then return it
+        if (voice)
+            PolySynth.abstractClassLogger.debug(`getFreeVoice(): free voice found: ${voice.toString()}`);
+        else
+            PolySynth.abstractClassLogger.debug(`getFreeVoice(): no free voice was found`);
+
+
+        // Return the found voice (might be 'undefined')
         return voice;
     }
 
@@ -192,13 +260,25 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     {
         // If no free voice was found, attempt to steal the oldest one
         // First we, find the oldest voice
-        const oldestVoice = this.voices.reduce( (oldVoice, currentVoice) =>
+        // const oldestVoice = this.voices.reduce( (oldVoice, currentVoice) =>
+        // {
+        //     if (currentVoice.getTriggerTime() < oldVoice.getTriggerTime())
+        //         return currentVoice;
+        //     else
+        //         return oldVoice;
+        // });
+
+        let oldestVoice = this.voices[0];
+        for (let i = 0; i < this.voices.length; i++)
         {
-            if (currentVoice.getTriggerTime() < oldVoice.getTriggerTime())
-                return currentVoice;
-            else
-                return oldVoice;
-        });
+            // also update the state for each voice
+            this.voices[i].checkAndUpdateState();
+
+            if (oldestVoice.getTriggerTime() > this.voices[i].getTriggerTime())
+                oldestVoice = this.voices[i];
+        }
+
+        PolySynth.abstractClassLogger.debug(`getOldestVoice(): oldest voice found: ${oldestVoice.toString()}`);
 
         return oldestVoice;
     }
@@ -210,13 +290,13 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
         // If there was a free voice available, then return it
         if (voice)
-            PolySynth.abstractClassLogger.debug(`getFreeVoiceOrStealOldest(): free voice found`);
+            PolySynth.abstractClassLogger.debug(`getFreeVoiceOrStealOldest(): free voice found: ${voice.toString()}`);
         else
         {
             // Otherwise, try to steal the oldest voice and return that
             voice = this.getOldestVoice();
 
-            PolySynth.abstractClassLogger.warn(`getFreeVoiceOrStealOldest(): no free voice was found, voice stolen is: ${voice}`);
+            PolySynth.abstractClassLogger.warn(`getFreeVoiceOrStealOldest(): no free voice was found, voice stolen is: ${voice.toString()}`);
         }
 
         return voice;

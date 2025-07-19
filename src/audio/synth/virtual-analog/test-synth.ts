@@ -18,7 +18,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
     private noteUtils: Note12TETUtils;
     private oscNoteOffset: Note12TET;
 
-    private audioContext: AudioContext;
+    // private audioContext: AudioContext;
 
     // the oscillators:
     private oscillator: PulseOscillator;
@@ -30,7 +30,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 
     constructor(audioContext: AudioContext)
     {
-        super(new Note12TET(4, 9, 0));
+        super(audioContext, new Note12TET(4, 9, 0));
 
         this.noteUtils = new Note12TETUtils();
         this.oscNoteOffset = new Note12TET(0, 0, 0);
@@ -65,25 +65,40 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         const oscFreq = this.noteUtils.getFrequencyWithOffset(this.getNoteData(), this.oscNoteOffset);
         this.oscillator.setFrequency(oscFreq); // maybe should just set octaves and semitones?
 
+        const currentTime = this.audioContext.currentTime;
+        this.outputNode.gain.setTargetAtTime(Settings.maxOscGain, currentTime, 2); // example 500 milisec release time
         this.oscillator.startSource();
     }
 
     // Method inheritted from 'MonoSynth<>' abstract class
-    protected releaseSignal(onReleaseFinshed: () => void): void
+    // protected releaseSignal(onReleaseFinshed: () => void): void
+    // {
+    //     const currentTime = this.audioContext.currentTime;
+
+    //     this.outputNode.gain.cancelScheduledValues(currentTime);
+    //     this.outputNode.gain.setTargetAtTime(0, currentTime, 0.5); // example 500 milisec release time
+
+    //     // Use setTimeout to simulate when the release will have faded out
+    //     setTimeout(() => { onReleaseFinshed(); }, 500); // Match the release time 500 milisec
+    // }
+
+    protected releaseSignal(): void
     {
         const currentTime = this.audioContext.currentTime;
 
         this.outputNode.gain.cancelScheduledValues(currentTime);
-        this.outputNode.gain.setTargetAtTime(0, currentTime, 0.5); // example 500 milisec release time
-
-        // Use setTimeout to simulate when the release will have faded out
-        setTimeout(() => { onReleaseFinshed(); }, 500); // Match the release time 500 milisec
+        this.outputNode.gain.setTargetAtTime(Settings.minOscGain, currentTime, 2); // example 500 milisec release time
     }
 
     // Method inheritted from 'MonoSynth<>' abstract class
-    protected getNoteComputer(): NoteUtils<Note12TET>
+    // protected getNoteComputer(): NoteUtils<Note12TET>
+    // {
+    //     return new Note12TETUtils();
+    // }
+
+    protected getReleaseDuration(): number
     {
-        return new Note12TETUtils();
+        return 1.0;
     }
 
     public getOscillator(): PulseOscillator { return this.oscillator; }
@@ -158,4 +173,4 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
     }
 }
 
-export const testPolySynth = new TestPolySynth(audioContext, 5);
+export const testPolySynth = new TestPolySynth(audioContext, 3);
