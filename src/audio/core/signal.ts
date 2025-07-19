@@ -1,4 +1,4 @@
-import type { Note12TET } from "../note/note";
+import type { Note12TETUtils } from "../note/note12tet";
 
 /* Represents the concept of a signal which has a frequency. */
 export interface FrequencyBasedSignal
@@ -19,7 +19,7 @@ export interface NoteBasedSignal
     ** is needed, whenever the note changes;
     **
     ** this method sets the note of a signal (most of the time the signal is an oscillator) */
-    setNote(note: Note12TET): boolean;
+    setNote(note: Note12TETUtils): boolean;
 }
 
 /* Represents the concept of a signal which has a pulse width (such as a square wave). */

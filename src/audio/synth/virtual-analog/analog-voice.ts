@@ -3,7 +3,7 @@ import { audioContext } from "../../../constants/shareable-audio-nodes";
 
 import type { Emitter } from "../../core/emitter";
 
-import { Note12TET } from "../../note/note";
+import { Note12TETUtils } from "../../note/note12tet";
 
 import { TripleShapeOscillator } from "../../source-emitter/oscillator/melodic/triple-shape-oscillator";
 import { TripleNoiseOscillator } from "../../source-emitter/oscillator/noise/triple-noise-oscillator";
@@ -13,17 +13,17 @@ import { OscFilter } from "../../intermediate-emitter/filter/lowpass-filter";
 
 import { AdsrEnvelopeSource } from "../../source-emitter/modulator/adsr-envelope";
 
-import type { MonoSynth } from "../../core/synth";
+import type { SynthVoice } from "../../core/synth";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 
 
-export class AnalogMonoSynth implements Emitter, MonoSynth
+export class AnalogMonoSynth implements Emitter, SynthVoice
 {
     private audioContext: AudioContext;
 
-    private note: Note12TET;
+    private note: Note12TETUtils;
 
     // the oscillators:
     private multiShapeOscillator1: TripleShapeOscillator;
@@ -59,7 +59,7 @@ export class AnalogMonoSynth implements Emitter, MonoSynth
         // if (audioContext === null)
         //     Voice.logger.warn("constructor(): audioContext is null, separate audioContext was created");
 
-        this.note = new Note12TET(4, 9);
+        this.note = new Note12TETUtils(4, 9);
 
         this.multiShapeOscillator1 = new TripleShapeOscillator(this.audioContext);
         this.multiShapeOscillator2 = new TripleShapeOscillator(this.audioContext);

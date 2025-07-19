@@ -3,20 +3,22 @@ import { audioContext } from "../../../constants/shareable-audio-nodes";
 
 import type { Emitter } from "../../core/emitter";
 
-import { Note12TET } from "../../note/note";
+import { Note12TETUtils, Note12TET } from "../../note/note12tet";
 
-import { PolySynth, type MonoSynth } from "../../core/synth";
+import { PolySynth, SynthVoice } from "../../core/synth";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 import { PulseOscillator } from "../../source-emitter/oscillator/melodic/pulse-oscillator";
+import type { NoteUtils, Note } from "../../core/note";
 
 
-export class TestMonoSynth implements MonoSynth
+export class TestMonoSynth extends SynthVoice<Note12TET>
 {
-    private audioContext: AudioContext;
+    private noteUtils: Note12TETUtils;
+    private oscNoteOffset: Note12TET;
 
-    private note: Note12TET;
+    private audioContext: AudioContext;
 
     // the oscillators:
     private oscillator: PulseOscillator;
@@ -24,24 +26,28 @@ export class TestMonoSynth implements MonoSynth
     // the final node
     private outputNode: GainNode;
 
-    private static readonly logger: Logger<ILogObj> = new Logger({name: "TestMonoSynth1", minLevel: Settings.minLogLevel});
+    private static readonly logger: Logger<ILogObj> = new Logger({name: "TestMonoSynth", minLevel: Settings.minLogLevel});
 
     constructor(audioContext: AudioContext)
     {
+        super(new Note12TET(4, 9, 0));
+
+        this.noteUtils = new Note12TETUtils();
+        this.oscNoteOffset = new Note12TET(0, 0, 0);
+
         this.audioContext = audioContext;
 
-        this.note = new Note12TET(4, 9);
-
         this.oscillator = new PulseOscillator(this.audioContext);
+        this.oscillator.setFrequency(this.noteUtils.getFrequencyWithOffset(this.getNoteData(), this.oscNoteOffset));
 
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
-        // this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
-        this.outputNode.gain.setValueAtTime(1.0, this.audioContext.currentTime);
+
+        this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
+        // this.outputNode.gain.setValueAtTime(1.0, this.audioContext.currentTime);
 
         // the filtered oscillators are taken from the filter output
         this.oscillator.getOutputNode().connect(this.outputNode);
-        this.oscillator.setFrequency(this.note.getFreq());
     }
 
     // Method inheritted from 'Emitter' interface
@@ -50,33 +56,41 @@ export class TestMonoSynth implements MonoSynth
         return this.outputNode;
     }
 
-    // Method inherited from 'MonoSynth' interface
-    public noteOn(octaves: number, semitones: number): void
+    // Method inheritted from 'MonoSynth<>' abstract class
+    protected startSignal(note: Note12TET): void
     {
-        TestMonoSynth.logger.debug(`noteOn(octaves = ${octaves}, semitones = ${semitones})`);
+        TestMonoSynth.logger.debug(`startSignal(note{${note.octaves}, semitones = ${note.semitones}})`);
 
-        this.note.setOctavesAndSemitones(octaves, semitones);
-
-        // first, set the internal note (as octaves and semitones) for all melodic oscillators
-        this.oscillator.setFrequency(this.note.getFreq()); // maybe should just set octaves and semitones?
+        // first, set the internal frequency for all melodic oscillators
+        const oscFreq = this.noteUtils.getFrequencyWithOffset(this.getNoteData(), this.oscNoteOffset);
+        this.oscillator.setFrequency(oscFreq); // maybe should just set octaves and semitones?
 
         this.oscillator.startSource();
     }
 
-    // Method inherited from 'MonoSynth' interface
-    public noteOff(): void
+    // Method inheritted from 'MonoSynth<>' abstract class
+    protected releaseSignal(onReleaseFinshed: () => void): void
     {
-        TestMonoSynth.logger.debug(`noteOff()`);
+        const currentTime = this.audioContext.currentTime;
 
-        // stop the ADSR envelope for the voice
-        // this.voiceAdsrEnvelope.stopSignal(0);
-        this.oscillator.stopSource();
+        this.outputNode.gain.cancelScheduledValues(currentTime);
+        this.outputNode.gain.setTargetAtTime(0, currentTime, 0.5); // example 500 milisec release time
+
+        // Use setTimeout to simulate when the release will have faded out
+        setTimeout(() => { onReleaseFinshed(); }, 500); // Match the release time 500 milisec
+    }
+
+    // Method inheritted from 'MonoSynth<>' abstract class
+    protected getNoteComputer(): NoteUtils<Note12TET>
+    {
+        return new Note12TETUtils();
     }
 
     public getOscillator(): PulseOscillator { return this.oscillator; }
 }
 
-export class TestPolySynth extends PolySynth<TestMonoSynth> implements Emitter
+// N extends Note, M extends MonoSynth<N>
+export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
 {
     private audioContext: AudioContext;
 

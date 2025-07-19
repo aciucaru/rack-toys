@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "./InvisibleKeyboard.module.css";
 
 import { Settings } from "../../constants/settings";
+import { Note12TET } from "../../audio/note/note12tet";
 import { TestPolySynth, testPolySynth } from "../../audio/synth/virtual-analog/test-synth";
 // import { monoSynth } from "../../audio/synth/virtual-analog/analog-synth";
 
@@ -23,13 +24,27 @@ export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
     // track which physical keys are down
     const pressedKeys = useRef<Set<string>>(new Set());
 
-    // QWERTY-to-(octave,semitone) mapping
-    const keyMap: Record<string, [number, number]> =
+    // Map between QWERTY keys and notes
+    const keyMap: Record<string, Note12TET> =
     {
-        a: [2, 0],  w: [2, 1],  s: [2, 2],  e: [2, 3],
-        d: [2, 4],  f: [2, 5],  t: [2, 6],  g: [2, 7],
-        y: [2, 8],  h: [2, 9],  u: [2, 10], j: [2, 11],
-        k: [3, 0],  o: [3, 1],  l: [3, 2],
+        // First octave
+        a: new Note12TET(2, 0, 0),
+            w: new Note12TET(2, 1, 0),
+        s: new Note12TET(2, 2, 0),
+            e: new Note12TET(2, 3, 0),
+        d: new Note12TET(2, 4, 0),
+        f: new Note12TET(2, 5, 0),
+            t: new Note12TET(2, 6, 0),
+        g: new Note12TET(2, 7, 0),
+            y: new Note12TET(2, 8, 0),
+        h: new Note12TET(2, 9, 0),
+            u: new Note12TET(2, 10, 0),
+        j: new Note12TET(2, 11, 0),
+
+        // Second octave (partially)
+        k: new Note12TET(3, 0, 0),
+            o: new Note12TET(3, 1, 0),
+        l: new Note12TET(3, 2, 0),
     };
 
     const unlockAudio = async () =>
@@ -58,10 +73,11 @@ export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
             return;
 
         event.preventDefault();
-        const [oct, semi] = keyMap[key];
-        const midiNote = `${oct}${semi}`;
-        logger.debug(`↓ key "${key}" → noteOn(${midiNote})`);
-        testPolySynth.noteOn(midiNote, oct + startOctave, semi);
+        const note = keyMap[key];
+
+        logger.debug(`key down "${key}" -> noteOn(): ${note.octaves}, ${note.semitones}`);
+
+        testPolySynth.noteOn(note);
 
         pressedKeys.current.add(key);
     };
@@ -76,10 +92,11 @@ export function InvisibleKeyboard({ startOctave = 2 }: KeyboardProps)
             return;
 
         event.preventDefault();
-        const [oct, semi] = keyMap[key];
-        const midiNote = `${oct}${semi}`;
-        logger.debug(`↑ key "${key}" → noteOff(${midiNote})`);
-        testPolySynth.noteOff(midiNote);
+        const note = keyMap[key];
+
+        logger.debug(`key up "${key}" -> noteOn(): ${note.octaves}, ${note.semitones}`);
+        
+        testPolySynth.noteOff(note);
 
         pressedKeys.current.delete(key);
     };
