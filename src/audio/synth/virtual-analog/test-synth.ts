@@ -92,21 +92,21 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 // N extends Note, M extends MonoSynth<N>
 export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
 {
-    private audioContext: AudioContext;
+    // private audioContext: AudioContext; // inherited
 
     // the final node
     private outputNode: GainNode;
 
-    private static readonly logger: Logger<ILogObj> = new Logger({name: "TestPolySynth1", minLevel: Settings.minLogLevel});
+    private static readonly logger: Logger<ILogObj> = new Logger({name: "TestPolySynth", minLevel: Settings.minLogLevel});
 
-    constructor(audioContext: AudioContext, polyphonyCount: number)
+    constructor(audioContext: AudioContext, numberOfVoices: number)
     {
-        super();
+        super(audioContext, numberOfVoices);
 
-        this.audioContext = audioContext;
+        // this.audioContext = audioContext;
 
         // Instantiate 'voices' (the monosynths)
-        this.setVoices(polyphonyCount);
+        this.setVoices(numberOfVoices);
 
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
@@ -123,7 +123,7 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
     }
 
     // Inherited from PolySynth abstract class
-    protected createVoice(): TestMonoSynth
+    protected createVoice(audioContext: AudioContext): TestMonoSynth
     {
         return new TestMonoSynth(this.audioContext);
     }

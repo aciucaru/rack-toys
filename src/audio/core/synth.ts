@@ -15,9 +15,8 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     // The only abstract methods of this class
     protected abstract startSignal(note: N): void;
     protected abstract releaseSignal(onReleaseFinshed: () => void): void;
-    // protected abstract getNoteComputer(): Note<N>;
 
-    private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "MonoSynth", minLevel: Settings.minLogLevel });
+    private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract MonoSynth", minLevel: Settings.minLogLevel });
 
     constructor(note: N)
     {
@@ -42,7 +41,8 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     public noteOff(): void
     {
         this._isActive = false;
-        this._isReleasing = true;
+        // this._isReleasing = true;
+        this._isReleasing = false;
 
         this.releaseSignal(() => {this._isReleasing = false;});
     }
@@ -67,21 +67,27 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
 export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> implements Emitter
 {
+    protected audioContext: AudioContext;
+
     /** The pool of all voices (a voice is bassically a monophonic synthesizer). */
     protected voices: Array<V>;
 
-    private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "PolySynth", minLevel: Settings.minLogLevel });
+    private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract PolySynth", minLevel: Settings.minLogLevel });
     
-    constructor(numberOfVoices: number = 1)
+    constructor(audioContext: AudioContext, numberOfVoices: number = 1)
     {
-        this.voices = new Array<V>(numberOfVoices);
+        this.audioContext = audioContext;
+
+        this.voices = new Array<V>();
+
+        this.setVoices(numberOfVoices);
     }
     
     // Inherited from 'Emitter' interface
     public abstract getOutputNode(): AudioNode;
 
     /* Any subclass must implement this method and return a newly created MonoSynth */
-    protected abstract createVoice(): V;
+    protected abstract createVoice(audioContext: AudioContext): V;
 
     public setVoices(numberOfVoices: number)
     {
@@ -93,10 +99,10 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
         for (let i = 0; i < numberOfVoices; i++)
         {
-            this.voices.push(this.createVoice());
+            this.voices.push(this.createVoice(this.audioContext));
         }
 
-        PolySynth.abstractClassLogger.debug(`setVoices(${numberOfVoices}) after recreation: ${this.voices}`);
+        PolySynth.abstractClassLogger.debug(`setVoices(${numberOfVoices}) after recreation: ${this.voices.length}`);
     }
 
     public getVoices(): Array<V> { return this.voices; }
@@ -111,27 +117,29 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     {
         PolySynth.abstractClassLogger.debug("noteOn()");
 
-        // If this note is already active (playing), then release it first
-        for (const voice of this.voices)
-        {
-            if (voice.getNoteData().equals(note))
-                voice.noteOff();
-        }
-
         // Find the voice associated with the specified note
-        const voice = this.getVoiceByNote(note);
+        const voice = this.findVoiceByNote(note);
 
         // If the voice was found, check if it's already active and then stop is
         if (voice)
         {
             if (voice.isActive())
+            {
                 // Then stop the voice
                 voice.noteOff();
+
+                PolySynth.abstractClassLogger.warn(`noteOn(): found active voice associated with note: ${voice?.getNoteData().toString()}`);
+            }
+            else
+                PolySynth.abstractClassLogger.debug(`noteOn(): found inactive voice associated with note: ${voice?.getNoteData().toString()}`);
         }
 
         // Now we can try to get a free voice to play the supplied note
         // Find a free voice (or steal one if no free voice is available)
         const freeVoice = this.getFreeVoiceOrStealOldest();
+
+        if (!freeVoice)
+            PolySynth.abstractClassLogger.warn(`noteOn(): NO VOICE IS AVAILABLE`);
 
         // Play note on that voice
         freeVoice.noteOn(note);
@@ -142,7 +150,9 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     {
         // Try to find the voice that is asociated with the supplied note and is also playing (is active) 
         // let voice = this.voices.find(voice => voice.getNote().equals(note) && voice.isActive());
-        const voice = this.getVoiceByNote(note);
+        const voice = this.findVoiceByNote(note);
+
+        PolySynth.abstractClassLogger.debug(`noteOff() note found: ${voice?.getNoteData().toString()}`);
 
         // If the voice was found, then stop it
         if (voice)
@@ -161,10 +171,10 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     public setVoiceCount(n: number)
     {
         this.voices = [];
-        for (let i = 0; i < n; i++) this.voices.push(this.createVoice());
+        for (let i = 0; i < n; i++) this.voices.push(this.createVoice(this.audioContext));
     }
 
-    private getVoiceByNote(note: N): V | undefined
+    private findVoiceByNote(note: N): V | undefined
     {
         return this.voices.find(voice => voice.getNoteData().equals(note));
     }
@@ -200,10 +210,15 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
         // If there was a free voice available, then return it
         if (voice)
-            return voice;
+            PolySynth.abstractClassLogger.debug(`getFreeVoiceOrStealOldest(): free voice found`);
+        else
+        {
+            // Otherwise, try to steal the oldest voice and return that
+            voice = this.getOldestVoice();
 
-        // Otherwise, try to steal the oldest voice and return that
-        voice = this.getOldestVoice();
+            PolySynth.abstractClassLogger.warn(`getFreeVoiceOrStealOldest(): no free voice was found, voice stolen is: ${voice}`);
+        }
+
         return voice;
     }
 }

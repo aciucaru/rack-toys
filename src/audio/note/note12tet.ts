@@ -33,6 +33,11 @@ export class Note12TET implements Note
                 this.semitones === otherNote.semitones &&
                 this.cents === otherNote.cents)
     };
+
+    public toString(): string
+    {
+        return `oct: ${this.octaves}, st: ${this.semitones}, ct: ${this.cents}`;
+    }
 }
 
 export class Note12TETUtils implements NoteUtils<Note12TET>
