@@ -2,7 +2,7 @@
 This branch is made in order to add a standardized envelope to the *SynthVoice* abstract class, which will be inherited by
 any subclass.
 
-It is necessay that the individual synth voices have an internal envelope (like a ADSR envelope) because, otherwise, the polyphonic synthesizer using those voice will sound bad when multple notes are playing at the same time.
+It is necessay that the individual synth voices have an internal envelope (like a ADSR envelope) because, otherwise, the polyphonic synthesizer using those voices will sound bad when multiple notes are playing at the same time.
 
 Forcing that each single voice has some kind of volume envelope gives a much nicer sound, a more predictable result.
 
