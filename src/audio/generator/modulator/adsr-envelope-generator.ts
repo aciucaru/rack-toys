@@ -4,7 +4,7 @@ import { RestartableGenerator, type EndableNode } from "../../core/emitter";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import { AdsrEnvelopeMultiplier } from "../../intermediate-emitter/envelope/envelope-multiplier";
+import { AdsrEnvelopeMultiplier } from "../../intermediate-emitter/envelope/adsr-envelope-multiplier";
 
 
 /* General-purpose ADSR envelope; this envelope can vary between 0.0 and 1.0.
