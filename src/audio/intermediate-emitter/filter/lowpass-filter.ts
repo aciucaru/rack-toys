@@ -1,5 +1,5 @@
 import { Settings } from "../../../constants/settings";
-import { AdsrEnvelopeSource } from "../../source-emitter/modulator/adsr-envelope";
+import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope-generator";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
@@ -21,7 +21,7 @@ export class OscFilter
     private filterNode: BiquadFilterNode;
 
     // the ADSR envelope for the cutoff frequency
-    private cutoffAdsrEnvelope: AdsrEnvelopeSource;
+    private cutoffAdsrEnvelope: AdsrEnvelopeGenerator;
     
     // the gain node for the ADSR amount
     private envelopeAmountGainNode: GainNode;
@@ -54,7 +54,7 @@ export class OscFilter
         const lowerModulationFixedRange = Settings.minFilterLfoAmount;
         const upperModulationFixedRange = Settings.maxFilterLfoAmount;
 
-        this.cutoffAdsrEnvelope = new AdsrEnvelopeSource(this.audioContext);
+        this.cutoffAdsrEnvelope = new AdsrEnvelopeGenerator(this.audioContext);
         this.envelopeAmountGainNode = this.audioContext.createGain();
         this.envelopeAmountGainNode.gain.setValueAtTime(-2400, this.audioContext.currentTime);
 
@@ -186,5 +186,5 @@ export class OscFilter
     }
 
     // modulators getters
-    public getAdsrEnvelope(): AdsrEnvelopeSource { return this.cutoffAdsrEnvelope; }
+    public getAdsrEnvelope(): AdsrEnvelopeGenerator { return this.cutoffAdsrEnvelope; }
 }

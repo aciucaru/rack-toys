@@ -4,6 +4,7 @@ import type { Emitter } from "./emitter";
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 import type { Note } from "./note";
+import type { EnvelopeMultiplier } from "./envelope-multiplier";
 
 /* Enum-style structure, in TypeScript it's more recommended to use such pattern than to use true Enums.
 ** This 'enum-style' structure represents the possible states a synth voice could be in:
@@ -33,7 +34,8 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     protected abstract startSignal(note: N): void;
     // protected abstract releaseSignal(onReleaseFinshed: () => void): void;
     protected abstract releaseSignal(): void;
-    protected abstract getReleaseDuration(): number;
+    protected abstract getEstimatedReleaseDuration(): number;
+    protected abstract getEnvelopeMultiplier(): EnvelopeMultiplier;
 
     private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract MonoSynth", minLevel: Settings.minLogLevel });
 
@@ -81,15 +83,17 @@ export abstract class SynthVoice<N extends Note> implements Emitter
         this.releaseFinishTime = Number.MAX_VALUE;
 
         this.startSignal(note);
+        this.getEnvelopeMultiplier().triggerAttack();
     }
 
     public triggerRelease(): void
     {
         this.state = VoiceState.InReleasePhase;
-        this.releaseFinishTime = this.audioContext.currentTime + this.getReleaseDuration();
+        this.releaseFinishTime = this.audioContext.currentTime + this.getEstimatedReleaseDuration();
 
         // this.releaseSignal(() => {this._isReleasing = false;});
         this.releaseSignal();
+        this.getEnvelopeMultiplier().triggerRelease();
     }
 
     public getNote(): N | null { return this.note; }

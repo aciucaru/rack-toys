@@ -2,7 +2,7 @@ import { Settings } from "../../../../constants/settings";
 import { PulseOscillator } from "./pulse-oscillator";
 import { ToggleMixer } from "../../../intermediate-emitter/mixer/toggle-mixer";
 
-import { RestartableSourceGenerator, ChildGenerator } from "../../../core/emitter";
+import { RestartableGenerator, ChildGenerator } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
 
 import { Logger } from "tslog";
@@ -19,7 +19,7 @@ export class TripleShapeOscillator extends ChildGenerator implements FrequencyBa
     private sawOscillatorNode: SimpleOscillator;
     private pulseOscillatorNode: PulseOscillator;
 
-    private restartableNodes: Array<RestartableSourceGenerator>;
+    private restartableNodes: Array<RestartableGenerator>;
 
     // The mixer that toggles on/off the oscillator nodes
     // Must be initialized somewere inside the constructor, in this case the initNodes() method
@@ -69,7 +69,7 @@ export class TripleShapeOscillator extends ChildGenerator implements FrequencyBa
         // Connect the result (of mixing the 3 oscillators) to the output gain node
         this.toggleMixer.getOutputNode().connect(this.outputNode);
 
-        this.restartableNodes = new Array<RestartableSourceGenerator>();
+        this.restartableNodes = new Array<RestartableGenerator>();
         this.restartableNodes.push(this.sawOscillatorNode);
         this.restartableNodes.push(this.triangleOscillatorNode);
         this.restartableNodes.push(this.pulseOscillatorNode);
@@ -79,7 +79,7 @@ export class TripleShapeOscillator extends ChildGenerator implements FrequencyBa
     public override getOutputNode(): AudioNode { return this.outputNode; }
 
     // Method inherited from 'SourceEmitter' abstract class
-    protected override getRestartableGenerators(): RestartableSourceGenerator[]
+    protected override getRestartableGenerators(): RestartableGenerator[]
     {
         return this.restartableNodes;
     }

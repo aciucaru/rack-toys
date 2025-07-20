@@ -7,7 +7,9 @@ import { PolySynth, SynthVoice } from "../../core/synth";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import { PulseOscillator } from "../../source-emitter/oscillator/melodic/pulse-oscillator";
+import { PulseOscillator } from "../../generator/oscillator/melodic/pulse-oscillator";
+import type { EnvelopeMultiplier } from "../../core/envelope-multiplier";
+import { AdsrEnvelopeMultiplier } from "../../intermediate-emitter/envelope/adsr-envelope-multiplier";
 
 
 export class TestMonoSynth extends SynthVoice<Note12TET>
@@ -17,6 +19,8 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 
     // the oscillators:
     private oscillator: PulseOscillator;
+
+    private adsrEnvelopeMultiplier: AdsrEnvelopeMultiplier;
 
     // the final node
     private outputNode: GainNode;
@@ -34,11 +38,18 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 
         this.oscillator = new PulseOscillator(this.audioContext);
 
+        this.adsrEnvelopeMultiplier = new AdsrEnvelopeMultiplier(this.audioContext);
+
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
 
-        // connect teh oscillator to the destination (built-into the base class)
-        this.oscillator.getOutputNode().connect(this.outputNode);
+        // connect the oscillator to the destination (built-into the base class)
+        this.oscillator.getOutputNode().connect(this.adsrEnvelopeMultiplier.getInputNode());
+
+        // connect the ADSR envelope with the final output
+        this.adsrEnvelopeMultiplier.getOutputNode().connect(this.outputNode);
+
+        this.adsrEnvelopeMultiplier.setParams(2.0, 2.0, 0.5, 1.0);
     }
 
     // Method inheritted from 'Emitter' interface
@@ -58,6 +69,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         this.oscillator.recreateSource();
         this.oscillator.setFrequency(oscFreq);
         this.oscillator.startSource();
+        this.adsrEnvelopeMultiplier.triggerAttack();
     }
 
     // Method inheritted from 'MonoSynth<>' abstract class
@@ -72,6 +84,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
     //     setTimeout(() => { onReleaseFinshed(); }, 500); // Match the release time 500 milisec
     // }
 
+    // Method inheritted from 'MonoSynth<>' abstract class
     protected releaseSignal(): void
     {
         const currentTime = this.audioContext.currentTime;
@@ -79,12 +92,17 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         // this.outputNode.gain.cancelScheduledValues(currentTime);
         // this.outputNode.gain.setTargetAtTime(Settings.minOscGain, currentTime, 2); // example 500 milisec release time
         this.oscillator.stopSource();
+        this.adsrEnvelopeMultiplier.triggerRelease();
     }
 
-    protected getReleaseDuration(): number
+    // Method inheritted from 'MonoSynth<>' abstract class
+    protected getEstimatedReleaseDuration(): number
     {
-        return 0.5;
+        return this.adsrEnvelopeMultiplier.getEstimatedReleaseDuration();
     }
+
+    // Method inheritted from 'MonoSynth<>' abstract class
+    protected getEnvelopeMultiplier(): EnvelopeMultiplier { return this.adsrEnvelopeMultiplier; }
 
     public getOscillator(): PulseOscillator { return this.oscillator; }
 }

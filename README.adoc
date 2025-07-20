@@ -1,20 +1,28 @@
-# restartable-source-emitter-composable-redesign branch
-This branch is made in order to improve the design of composable 'source emitters'. A 'source emitter' is a node that is the first source of a signal. In this context, a 'source emitter' is also always restartable. 
+= poly-synth-envelope branch
+This branch is made in order to add a standardized envelope to the *SynthVoice* abstract class, which will be inherited by
+any subclass.
 
-# React + TypeScript + Vite
+It is necessay that the individual synth voices have an internal envelope (like a ADSR envelope) because, otherwise, the polyphonic synthesizer using those voices will sound bad when multiple notes are playing at the same time.
+
+Forcing that each single voice has some kind of volume envelope gives a much nicer sound, a more predictable result.
+
+The actual subclass of *SynthVoice* abstract class will provide the volume envelope, so the design is flexible.
+
+= React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react[@vitejs/plugin-react] uses https://babeljs.io/[Babel] for Fast Refresh
+* https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc[@vitejs/plugin-react-swc] uses https://swc.rs/[SWC] for Fast Refresh
 
-## Expanding the ESLint configuration
+== Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
+[,js]
+----
 export default tseslint.config([
   globalIgnores(['dist']),
   {
@@ -40,11 +48,12 @@ export default tseslint.config([
     },
   },
 ])
-```
+----
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+You can also install https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x[eslint-plugin-react-x] and https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom[eslint-plugin-react-dom] for React-specific lint rules:
 
-```js
+[,js]
+----
 // eslint.config.js
 import reactX from 'eslint-plugin-react-x'
 import reactDom from 'eslint-plugin-react-dom'
@@ -69,4 +78,4 @@ export default tseslint.config([
     },
   },
 ])
-```
+----
