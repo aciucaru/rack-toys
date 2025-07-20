@@ -11,5 +11,5 @@ export interface EnvelopeMultiplier extends Emitter, Receiver
 
     // Must return the duration of the 'Release' phase (not the time at which it ends, but just teh duration).
     // This duration should be computed right after the 'triggerRelease()' method
-    getReleaseDuration(): number;
+    getEstimatedReleaseDuration(): number;
 }
