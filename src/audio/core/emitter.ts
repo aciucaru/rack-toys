@@ -19,21 +19,33 @@ export abstract class RestartableSourceGenerator implements Emitter
     // Inherited from 'Emitter' interface
     public abstract getOutputNode(): AudioNode;
 
-    protected abstract getEndableNodes(): Array<EndableNode>;
     /* This method must recreate the array of endable nodes, every time a new note is played */
     protected abstract setEndableNodes(): void;
     
+    /* Must instantiate and connect all internal nodes, except for the node returned by 'getOutputNode()' */
     protected abstract initNodes(): void;
+
+    /* Must return the internal source nodes which have the 'onended' event (e.g. 'endable nodes') */
+    protected abstract getEndableNodes(): Array<EndableNode>;
+
+    /* Must start all internal source nodes (e.g. the nodes that have a 'start()' method) */
     protected abstract startNodes(): void;
+
+    /* Must stop all internal source nodes (e.g. the same nodes as above ) */
     protected abstract stopNodes(): void;
+
+    /* Must disconnect all internal nodes */
     protected abstract disconnectNodes(): void;
 
+    /* Reinstantiates and connects all internal nodes, , except for the node returned by 'getOutputNode()'.
+    ** It also creates an array of nodes which have the 'onended' event. */
     public recreateSource(): void
     {
         this.initNodes();
         this.setEndableNodes();
     }
 
+    // Starts the fresly created and connencted nodes obtained with 'recreateSource()'
     public startSource(): void
     {
         this.startNodes();
@@ -79,8 +91,13 @@ export abstract class RestartableSourceGenerator implements Emitter
 
 export interface ComposableGenerator
 {
+    // Must re-instantiate and connect all internal nodes, but must NOT start them
     recreateInternalNodes(): void;
+
+    // Must start the internal nodes
     startSignal(): void;
+
+    // Must stop the internal nodes
     stopSignal(): void;
 }
 
