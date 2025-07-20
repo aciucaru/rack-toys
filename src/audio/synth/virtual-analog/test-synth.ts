@@ -38,7 +38,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         this.audioContext = audioContext;
 
         this.oscillator = new PulseOscillator(this.audioContext);
-        this.oscillator.setFrequency(this.noteUtils.getFrequencyWithOffset(this.getNoteData(), this.oscNoteOffset));
+        this.oscillator.setFrequency(this.noteUtils.getFrequencyWithOffset(this.getNote(), this.oscNoteOffset));
 
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
@@ -62,7 +62,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         TestMonoSynth.logger.debug(`startSignal(note{${note.octaves}, semitones = ${note.semitones}})`);
 
         // first, set the internal frequency for all melodic oscillators
-        const oscFreq = this.noteUtils.getFrequencyWithOffset(this.getNoteData(), this.oscNoteOffset);
+        const oscFreq = this.noteUtils.getFrequencyWithOffset(this.getNote(), this.oscNoteOffset);
         this.oscillator.setFrequency(oscFreq); // maybe should just set octaves and semitones?
 
         const currentTime = this.audioContext.currentTime;

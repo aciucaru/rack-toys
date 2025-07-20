@@ -24,10 +24,10 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 {
     protected audioContext: AudioContext;
 
-    private note: N;
-    private attackTriggerTime: number = Number.MAX_VALUE;
-    private releaseFinishTime: number = 0;
     private state: VoiceState = VoiceState.Free;
+    private note: N | null = null;
+    private attackTriggerTime: number = Number.MAX_VALUE;
+    private releaseFinishTime: number = Number.MAX_VALUE;
 
     private _isActive: boolean = false;
     private _isReleasing: boolean = false;
@@ -51,6 +51,14 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     // public isActive(): boolean { return this._isActive; }
 
+    private reset(): void
+    {
+        this.state = VoiceState.Free;
+        this.note = null;
+        this.attackTriggerTime = Number.MAX_VALUE;
+        this.releaseFinishTime = Number.MAX_VALUE;
+    }
+
     public checkAndUpdateState(): VoiceState
     {
         // if (this.state === VoiceState.Free || this.state === VoiceState.InAttackPhase)
@@ -59,10 +67,11 @@ export abstract class SynthVoice<N extends Note> implements Emitter
         if (this.state === VoiceState.InReleasePhase)
         {
             const currentTime = this.audioContext.currentTime;
+
+            // If the voice has finished playing its note
             if (currentTime > this.releaseFinishTime)
-            {
-                this.state = VoiceState.Free;
-            }
+                // Then reset it
+                this.reset(); // reset all relevant data (state, note, trigger times)
         }
 
         return this.state;
@@ -70,11 +79,10 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     public triggerAttack(note: N): void
     {
-        this.note = note;
-
-        this.attackTriggerTime = this.audioContext.currentTime;
-
         this.state = VoiceState.InAttackPhase;
+        this.note = note;
+        this.attackTriggerTime = this.audioContext.currentTime;
+        this.releaseFinishTime = Number.MAX_VALUE;
 
         // this._isActive = true;
         // this._isReleasing = false;
@@ -88,15 +96,14 @@ export abstract class SynthVoice<N extends Note> implements Emitter
         // this._isReleasing = true;
         // this._isReleasing = false;
 
-        this.releaseFinishTime = this.audioContext.currentTime + this.getReleaseDuration();
-
         this.state = VoiceState.InReleasePhase;
+        this.releaseFinishTime = this.audioContext.currentTime + this.getReleaseDuration();
 
         // this.releaseSignal(() => {this._isReleasing = false;});
         this.releaseSignal();
     }
 
-    public getNoteData(): N { return this.note; }
+    public getNote(): N | null { return this.note; }
 
     public getTriggerTime(): number { return this.attackTriggerTime; }
     // public getReleaseFinishTime(): number { return this.releaseFinishTime; }
@@ -170,43 +177,57 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     ** can later turn *that* voice off. */
     public triggerAttack(note: N)
     {
-        // Find the voice associated with the specified note
-        // const voice = this.findVoiceByNote(note);
-        // If the voice was found, check if it's already active and then stop is
-        // if (voice)
-        // {
-        //     PolySynth.abstractClassLogger.debug(`triggerAttack(): ${voice?.getNoteData().toString()}`);
+        // First of all, update the state of all voices in this poly synth
+        this.checkAndUpdateAllVoices();
 
-        //     // Check the voice state
-        //     const state = voice.checkAndUpdateState();
+        // Find if there is already a voice associated with the specified note
+        const voice = this.findVoiceByNote(note);
 
-        //     if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
-        //     {
-        //         PolySynth.abstractClassLogger.warn(`triggerAttack(): requested note: ${note.toString()} already has active voice: ${voice.toString()}`);
+        // If the voice was found, check if it's already active.
+        // If the voice is already active, then we will use that very same voice for this new note,
+        // because we don't want to hear the exact same note twice
+        if (voice)
+        {
+            PolySynth.abstractClassLogger.debug(`triggerAttack(): ${voice?.getNote().toString()}`);
+
+            // Check the voice state
+            // const state = voice.checkAndUpdateState();
+            voice.triggerAttack(note); // trigger the note on the very same voice that played it before
+
+            // if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
+            // {
+            //     PolySynth.abstractClassLogger.warn(`triggerAttack(): requested note: ${note.toString()} already has active voice: ${voice.toString()}`);
                 
-        //         // Then stop the voice
-        //         voice.triggerRelease(); // also sets the state
-        //     }
-        //     else
-        //         PolySynth.abstractClassLogger.debug(`triggerAttack(): found inactive voice: ${voice.toString()} associated with note: ${note.toString()}`);
-        // }
+            //     // Then stop the voice
+            //     voice.triggerRelease(); // also sets the state
+            // }
+            // else
+            //     PolySynth.abstractClassLogger.debug(`triggerAttack(): found inactive voice: ${voice.toString()} associated with note: ${note.toString()}`);
+        
+        }
+        else // If there was no voice already playing the supplied note
+        {
+            // Then just get any free voice or, if no free voice available, then steal the oldest voice
+            const freeVoice = this.getFreeVoiceOrStealOldest();
 
-        // Now we can try to get a free voice to play the supplied note
-        // Find a free voice (or steal one if no free voice is available)
-        const freeVoice = this.getFreeVoiceOrStealOldest();
-
-        if (freeVoice)
-            PolySynth.abstractClassLogger.warn(`noteOn(): free voice found or stolen: ${freeVoice.toString()}`);
-        else
-            PolySynth.abstractClassLogger.warn(`noteOn(): NO VOICE IS AVAILABLE`);
-
-        // Play note on that voice
-        freeVoice.triggerAttack(note);
+            if (freeVoice)
+            {
+                PolySynth.abstractClassLogger.warn(`noteOn(): free voice found or stolen: ${freeVoice.toString()}`);
+                
+                // Play note on that voice
+                freeVoice.triggerAttack(note);
+            }
+            else
+                PolySynth.abstractClassLogger.warn(`noteOn(): NO VOICE IS AVAILABLE`);
+        }
     }
 
     // Release exactly the voice that was playing this midiNote
     public triggerRelease(note: N)
     {
+        // First of all, update the state of all voices in this poly synth
+        this.checkAndUpdateAllVoices();
+
         // Try to find the voice that is asociated with the supplied note and is also playing (is active) 
         // let voice = this.voices.find(voice => voice.getNote().equals(note) && voice.isActive());
         const voice = this.findVoiceByNote(note);
@@ -238,7 +259,15 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
     private findVoiceByNote(note: N): V | undefined
     {
-        return this.voices.find(voice => voice.getNoteData().equals(note));
+        return this.voices.find(voice => voice.getNote().equals(note));
+    }
+
+    private checkAndUpdateAllVoices(): void
+    {
+        for (const voice of this.voices)
+        {
+            voice.checkAndUpdateState();
+        }
     }
 
     private getFreeVoice(): V | undefined
