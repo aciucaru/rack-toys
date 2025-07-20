@@ -54,9 +54,10 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 
         // const currentTime = this.audioContext.currentTime;
         // this.outputNode.gain.setTargetAtTime(Settings.maxOscGain, currentTime, 2); // example 500 milisec release time
+        
+        this.oscillator.recreateSource();
+        this.oscillator.setFrequency(oscFreq);
         this.oscillator.startSource();
-
-        this.oscillator.setFrequency(oscFreq); // maybe should just set octaves and semitones?
     }
 
     // Method inheritted from 'MonoSynth<>' abstract class
