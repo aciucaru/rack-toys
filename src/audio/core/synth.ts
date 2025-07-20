@@ -29,9 +29,6 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     private attackTriggerTime: number = Number.MAX_VALUE;
     private releaseFinishTime: number = Number.MAX_VALUE;
 
-    private _isActive: boolean = false;
-    private _isReleasing: boolean = false;
-
     // The only abstract methods of this class
     protected abstract startSignal(note: N): void;
     // protected abstract releaseSignal(onReleaseFinshed: () => void): void;
@@ -64,11 +61,13 @@ export abstract class SynthVoice<N extends Note> implements Emitter
         // if (this.state === VoiceState.Free || this.state === VoiceState.InAttackPhase)
         //     return this.state;
 
+        /* If the note is in the 'Release' state, then it might have finished the 'Release' phase
+        ** and should be marked as 'Free'. */
         if (this.state === VoiceState.InReleasePhase)
         {
             const currentTime = this.audioContext.currentTime;
 
-            // If the voice has finished playing its note
+            // If the voice has finished playing its note (it has finished the 'Release' phase)
             if (currentTime > this.releaseFinishTime)
                 // Then reset it
                 this.reset(); // reset all relevant data (state, note, trigger times)
@@ -84,18 +83,11 @@ export abstract class SynthVoice<N extends Note> implements Emitter
         this.attackTriggerTime = this.audioContext.currentTime;
         this.releaseFinishTime = Number.MAX_VALUE;
 
-        // this._isActive = true;
-        // this._isReleasing = false;
-
         this.startSignal(note);
     }
 
     public triggerRelease(): void
     {
-        // this._isActive = false;
-        // this._isReleasing = true;
-        // this._isReleasing = false;
-
         this.state = VoiceState.InReleasePhase;
         this.releaseFinishTime = this.audioContext.currentTime + this.getReleaseDuration();
 
@@ -105,7 +97,7 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     public getNote(): N | null { return this.note; }
 
-    public getTriggerTime(): number { return this.attackTriggerTime; }
+    public getAttackTriggerTime(): number { return this.attackTriggerTime; }
     // public getReleaseFinishTime(): number { return this.releaseFinishTime; }
 
     // Example releaseSignal()
@@ -123,7 +115,7 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     public toString(): string
     {
-        return `triggerTime: ${this.attackTriggerTime}, isActive: ${this._isActive}, isReleasing: ${this._isReleasing}`;
+        return `voice(${this.state}, ${this.note}, ${this.attackTriggerTime}, ${this.releaseFinishTime})`;
     }
 }
 
@@ -134,6 +126,8 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     /** The pool of all voices (a voice is bassically a monophonic synthesizer). */
     protected voices: Array<V>;
 
+    protected outputNode: GainNode;
+
     private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract PolySynth", minLevel: Settings.minLogLevel });
     
     constructor(audioContext: AudioContext, numberOfVoices: number = 1)
@@ -142,11 +136,14 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
         this.voices = new Array<V>();
 
+        this.outputNode = this.audioContext.createGain();
+
+        // instantiate voices and also connect them to the final 'outputNode'
         this.setVoices(numberOfVoices);
     }
     
     // Inherited from 'Emitter' interface
-    public abstract getOutputNode(): AudioNode;
+    public getOutputNode(): AudioNode { return this.outputNode; }
 
     /* Any subclass must implement this method and return a newly created MonoSynth */
     protected abstract createVoice(audioContext: AudioContext): V;
@@ -155,14 +152,26 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     {
         PolySynth.abstractClassLogger.debug(`setVoices(${numberOfVoices})`);
 
-        // clear the array
+        // First, diconnect the previous voices
+        for (const voice of this.voices)
+        {
+            voice.getOutputNode().disconnect(this.outputNode);
+        }
+
+        // Then clear the array of voices
         this.voices.length = 0;
         PolySynth.abstractClassLogger.debug(`setVoices(${numberOfVoices}) after clear: ${this.voices}`);
 
+        // Now instantiate and connect the new voices
         for (let i = 0; i < numberOfVoices; i++)
         {
-            this.voices.push(this.createVoice(this.audioContext));
+            const newVoice = this.createVoice(this.audioContext);
+
+            this.voices.push(newVoice);
+            newVoice.getOutputNode().connect(this.outputNode);
         }
+
+        this.outputNode.gain.setValueAtTime(0.9 / numberOfVoices, this.audioContext.currentTime);
 
         PolySynth.abstractClassLogger.debug(`setVoices(${numberOfVoices}) after recreation: ${this.voices.length}`);
     }
@@ -177,7 +186,11 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
     ** can later turn *that* voice off. */
     public triggerAttack(note: N)
     {
-        // First of all, update the state of all voices in this poly synth
+        PolySynth.abstractClassLogger.debug(`======================== ATTACK ========================`);
+
+        /* First of all, update the state of all voices in this poly synth.
+        ** We do this to find out if some notes in the "Release" state have finished this phase and now
+        ** have becomed practically "Free" notes. */
         this.checkAndUpdateAllVoices();
 
         // Find if there is already a voice associated with the specified note
@@ -188,10 +201,8 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
         // because we don't want to hear the exact same note twice
         if (voice)
         {
-            PolySynth.abstractClassLogger.debug(`triggerAttack(): ${voice?.getNote().toString()}`);
+            PolySynth.abstractClassLogger.debug(`triggerAttack(${note.toString()})`);
 
-            // Check the voice state
-            // const state = voice.checkAndUpdateState();
             voice.triggerAttack(note); // trigger the note on the very same voice that played it before
 
             // if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
@@ -212,19 +223,25 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
             if (freeVoice)
             {
-                PolySynth.abstractClassLogger.warn(`noteOn(): free voice found or stolen: ${freeVoice.toString()}`);
+                PolySynth.abstractClassLogger.warn(`triggerAttack(): free voice found or stolen: ${freeVoice.toString()}`);
                 
                 // Play note on that voice
                 freeVoice.triggerAttack(note);
+
+                PolySynth.abstractClassLogger.warn(`triggerAttack(): voice after Attack: ${freeVoice.toString()}`);
             }
             else
-                PolySynth.abstractClassLogger.warn(`noteOn(): NO VOICE IS AVAILABLE`);
+                PolySynth.abstractClassLogger.warn(`triggerAttack(): NO VOICE IS AVAILABLE`);
         }
+
+        PolySynth.abstractClassLogger.debug("========================================================");
     }
 
     // Release exactly the voice that was playing this midiNote
     public triggerRelease(note: N)
     {
+        PolySynth.abstractClassLogger.debug(`======================== RELEASE ========================`);
+
         // First of all, update the state of all voices in this poly synth
         this.checkAndUpdateAllVoices();
 
@@ -235,17 +252,24 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
         // If the voice was found, then stop it
         if (voice)
         {
-            PolySynth.abstractClassLogger.debug(`noteOff() voice found: ${voice.toString()} for note: ${note.toString()}`);
+            PolySynth.abstractClassLogger.debug(`triggerRelease(${note.toString()}): voice found: ${voice.toString()}`);
 
             // Check the voice state
             const state = voice.checkAndUpdateState();
 
-            if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
+            // if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
+            if (state === VoiceState.InAttackPhase)
+            {
                 // Then stop the voice
                 voice.triggerRelease();
+
+                PolySynth.abstractClassLogger.debug(`triggerRelease(${note.toString()}): voice after Release: ${voice.toString()}`);
+            }
         }
         else
-            PolySynth.abstractClassLogger.warn(`noteOff() voice not found for note: ${note.toString()}`);
+            PolySynth.abstractClassLogger.warn(`triggerRelease(${note.toString()}) voice not found for note`);
+
+        PolySynth.abstractClassLogger.debug("========================================================");
     }
 
     /* 
@@ -259,7 +283,7 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
     private findVoiceByNote(note: N): V | undefined
     {
-        return this.voices.find(voice => voice.getNote().equals(note));
+        return this.voices.find(voice => voice.getNote()?.equals(note));
     }
 
     private checkAndUpdateAllVoices(): void
@@ -303,7 +327,7 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
             // also update the state for each voice
             this.voices[i].checkAndUpdateState();
 
-            if (oldestVoice.getTriggerTime() > this.voices[i].getTriggerTime())
+            if (oldestVoice.getAttackTriggerTime() > this.voices[i].getAttackTriggerTime())
                 oldestVoice = this.voices[i];
         }
 

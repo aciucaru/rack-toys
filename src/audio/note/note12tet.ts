@@ -36,7 +36,7 @@ export class Note12TET implements Note
 
     public toString(): string
     {
-        return `oct: ${this.octaves}, st: ${this.semitones}, ct: ${this.cents}`;
+        return `{${this.octaves}, ${this.semitones}, ${this.cents}}`;
     }
 }
 
@@ -64,11 +64,7 @@ export class Note12TETUtils implements NoteUtils<Note12TET>
         // recompute frequency based on semitones offset from A4 note
         const freq = Constants.a4Freq * 2.0**(semitonesOffset / 12.0);
 
-        Note12TETUtils.logger.debug(`getFrequency(): ` +
-                                `oct: ${mainNote.octaves} ` +
-                                `st: ${mainNote.semitones} ` +
-                                `cents: ${mainNote.semitones}` +
-                                `new freq: ${freq}`);
+        Note12TETUtils.logger.debug(`getFrequency(${mainNote.toString()}), freq: ${freq}`);
 
         return freq;
     }
@@ -79,19 +75,12 @@ export class Note12TETUtils implements NoteUtils<Note12TET>
         // compute the number of offset semitones relative to A4 note
         const semitonesOffset: number = (mainNote.octaves + offsetNote.octaves - Constants.a4Octaves) * 12 +
                                         mainNote.semitones + offsetNote.semitones - Constants.a4Semitones +
-                                        mainNote.cents / 100.0 + offsetNote.cents / 100.0;
+                                        (mainNote.cents + offsetNote.cents) / 100.0;
 
         // recompute frequency based on semitones offset from A4 note
         const freq = Constants.a4Freq * 2.0**(semitonesOffset / 12.0);
 
-        Note12TETUtils.logger.debug(`getFrequencyWithOffset(): ` +
-                                `oct: ${mainNote.octaves} ` +
-                                `st: ${mainNote.semitones} ` +
-                                `cents: ${mainNote.semitones} ` +
-                                `oct offset: ${offsetNote.octaves} ` +
-                                `st offset: ${offsetNote.semitones} ` +
-                                `cents offset: ${offsetNote.cents} ` +
-                                `new freq: ${freq}`);
+        Note12TETUtils.logger.debug(`getFrequencyWithOffset(${mainNote.toString()}, ${offsetNote.toString()}): freq: ${freq}`);
 
         return freq;
     }

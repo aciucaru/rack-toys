@@ -38,12 +38,12 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         this.audioContext = audioContext;
 
         this.oscillator = new PulseOscillator(this.audioContext);
-        this.oscillator.setFrequency(this.noteUtils.getFrequencyWithOffset(this.getNote(), this.oscNoteOffset));
+        this.oscillator.setFrequency(this.noteUtils.getFrequencyWithOffset(this.getNote()!, this.oscNoteOffset));
 
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
 
-        this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
+        // this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
         // this.outputNode.gain.setValueAtTime(1.0, this.audioContext.currentTime);
 
         // the filtered oscillators are taken from the filter output
@@ -59,14 +59,14 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
     // Method inheritted from 'MonoSynth<>' abstract class
     protected startSignal(note: Note12TET): void
     {
-        TestMonoSynth.logger.debug(`startSignal(note{${note.octaves}, semitones = ${note.semitones}})`);
+        TestMonoSynth.logger.debug(`startSignal({${note.octaves}, ${note.semitones}, ${note.cents}})`);
 
         // first, set the internal frequency for all melodic oscillators
-        const oscFreq = this.noteUtils.getFrequencyWithOffset(this.getNote(), this.oscNoteOffset);
+        const oscFreq = this.noteUtils.getFrequencyWithOffset(note, this.oscNoteOffset);
         this.oscillator.setFrequency(oscFreq); // maybe should just set octaves and semitones?
 
-        const currentTime = this.audioContext.currentTime;
-        this.outputNode.gain.setTargetAtTime(Settings.maxOscGain, currentTime, 2); // example 500 milisec release time
+        // const currentTime = this.audioContext.currentTime;
+        // this.outputNode.gain.setTargetAtTime(Settings.maxOscGain, currentTime, 2); // example 500 milisec release time
         this.oscillator.startSource();
     }
 
@@ -86,8 +86,9 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
     {
         const currentTime = this.audioContext.currentTime;
 
-        this.outputNode.gain.cancelScheduledValues(currentTime);
-        this.outputNode.gain.setTargetAtTime(Settings.minOscGain, currentTime, 2); // example 500 milisec release time
+        // this.outputNode.gain.cancelScheduledValues(currentTime);
+        // this.outputNode.gain.setTargetAtTime(Settings.minOscGain, currentTime, 2); // example 500 milisec release time
+        this.oscillator.stopSource();
     }
 
     // Method inheritted from 'MonoSynth<>' abstract class
@@ -98,7 +99,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 
     protected getReleaseDuration(): number
     {
-        return 1.0;
+        return 0.5;
     }
 
     public getOscillator(): PulseOscillator { return this.oscillator; }
@@ -110,7 +111,7 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
     // private audioContext: AudioContext; // inherited
 
     // the final node
-    private outputNode: GainNode;
+    // private outputNode: GainNode; // inherited
 
     private static readonly logger: Logger<ILogObj> = new Logger({name: "TestPolySynth", minLevel: Settings.minLogLevel});
 
@@ -138,16 +139,16 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
     }
 
     // Inherited from PolySynth abstract class
-    protected createVoice(audioContext: AudioContext): TestMonoSynth
+    protected createVoice(): TestMonoSynth
     {
         return new TestMonoSynth(this.audioContext);
     }
 
     // Inherited from Emitter interface
-    getOutputNode(): AudioNode
-    {
-        return this.outputNode;
-    }
+    // getOutputNode(): AudioNode
+    // {
+    //     return this.outputNode;
+    // }
 
     public setMainGain(gain: number): void
     {
@@ -173,4 +174,4 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
     }
 }
 
-export const testPolySynth = new TestPolySynth(audioContext, 3);
+export const testPolySynth = new TestPolySynth(audioContext, 1);
