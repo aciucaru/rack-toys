@@ -1,7 +1,7 @@
 import { Settings } from "../../../../constants/settings";
 import { NoteSettings } from "../../../../constants/note-settings";
 
-import { RestartableSourceGenerator, type EndableNode } from "../../../core/emitter";
+import { RestartableGenerator, type EndableNode } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
 
 import { Logger } from "tslog";
@@ -17,7 +17,7 @@ export const SimpleWaveshape =
 
 export type SimpleWaveshape = (typeof SimpleWaveshape)[keyof typeof SimpleWaveshape];
 
-export class SimpleOscillator extends RestartableSourceGenerator implements FrequencyBasedSignal
+export class SimpleOscillator extends RestartableGenerator implements FrequencyBasedSignal
 {
     private audioContext: AudioContext;
 

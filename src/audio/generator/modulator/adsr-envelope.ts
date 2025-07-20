@@ -1,15 +1,19 @@
 import { Settings } from "../../../constants/settings";
 
+import { RestartableGenerator, type EndableNode } from "../../core/emitter";
+
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import { RestartableSourceGenerator, type EndableNode } from "../../core/emitter";
 
 
-/* General-purpose ADSR envelope; this envelope does not have a predefined min and max value,
-** instead, it can vary between 0.0 and 1.0.
-** It also has a sustain level, where 'sustainLevel' can be maximum 1.0 (100%);
+/* General-purpose ADSR envelope; this envelope can vary between 0.0 and 1.0.
+** It also has a sustain level, where 'sustainLevel' can be maximum 1.0 (100%).
 **
-** The ADSR enevelope is always between 0.0 and 1.0 and it supposed to by multiplied by the 'evelope amount',
+** This is NOT a multiplier, it is not  an intermediat node. This is a source of signal and it has no inputs.
+** Instead it has an output, the actual ADSR signal itself. So it cannot be used to 'amplify' a signal, because
+** it has no inputs, it's a standalone source of signal (a generator).
+**
+** The ADSR enevelope is always between 0.0 and 1.0 and it supposed to by multiplied by an external 'evelope amount',
 ** where the 'envelope amount' is no longer a relative value (between 0 and 1) but an absolute value,
 ** in the same measurement units as the parameter (destination) it's modulating. This multiplication
 ** is optional and is made outside this class, usually through a GainNode.
@@ -28,7 +32,7 @@ import { RestartableSourceGenerator, type EndableNode } from "../../core/emitter
 ** That emitter is a ConstanSourceNode, which is fed through the GainNode.
 ** Whithout the ConstantSourceNode, the ADSR envelope will not work, because it won't emit any signal. */
 
-export class AdsrEnvelopeSource extends RestartableSourceGenerator
+export class AdsrEnvelopeGenerator extends RestartableGenerator
 {
     /* the audio context used to create and connect nodes; must be supplied from outside the class */
     private audioContext: AudioContext;
@@ -120,9 +124,9 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
     }
 
     // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected startNodes(delayDuration: number): void
+    protected startNodes(): void
     {
-        AdsrEnvelopeSource.logger.debug(`startNodes(): triggered`);
+        AdsrEnvelopeGenerator.logger.debug(`startNodes(): triggered`);
 
         /* It might be possible that the attack-decay-sustain phase has started before the previous ADSR event has finished.
         ** If we just add an 'attack-decay-sustain' event and not cancel all remaining events, the remaining events will trigger
@@ -130,7 +134,7 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
         ** In order to prevent this bug, we use 'cancelAndHoldAtTime()'. */
 
         // Compute the time AFTER which all the events of the gain parameter should be canceled
-        const cancelationStartTime = this.audioContext.currentTime + delayDuration;
+        const cancelationStartTime = this.audioContext.currentTime;
 
         /* Then we cancel all events that start AFTER the previous cancelation time but we keep the value
         ** that the parameter had when the cancelation started */ 
@@ -158,9 +162,9 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
     }
 
     // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected stopNodes(delayDuration: number): void
+    protected stopNodes(): void
     {
-        AdsrEnvelopeSource.logger.debug(`stopNodes(): triggered`);
+        AdsrEnvelopeGenerator.logger.debug(`stopNodes(): triggered`);
 
         /* It might be possible that the release phase has started before the previous ADSR event has finished.
         ** If we just add a 'release' event and not cancel all remaining events, the remaining events will trigger
@@ -168,7 +172,7 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
         ** In order to prevent this bug, we use 'cancelAndHoldAtTime()'. */
 
         // now we compute the time AFTER all scheduled events should be canceled
-        const cancelationStartTime = this.audioContext.currentTime + delayDuration;
+        const cancelationStartTime = this.audioContext.currentTime;
 
         // cancel all remaining events
         this.adsrGainNode.gain.cancelAndHoldAtTime(cancelationStartTime);
@@ -196,59 +200,20 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
         this.adsrConstantSource.disconnect(this.adsrGainNode);
     }
 
-    // This method is for sequencer beats (steps)
-    // public startBeat(duration: number): void // is this method necessary?
-    // {
-    //     let timeDuration = 0;
-
-    //     if (duration > 0)
-    //         timeDuration = duration;
-    //     else
-    //         timeDuration = (60.0 / 120.0) / 4.0; // default to 120 BPM 4/4
-
-    //     const startTime = this.audioContext.currentTime; // the time when note was triggered
-    //     const stopTime = startTime + timeDuration;
-
-    //     /* It might be possible that the attack-decay-sustain phase has started before the previous ADSR event has finished.
-    //     ** If we just add an 'attack-decay-sustain' event and not cancel all remaining events, the remaining events will trigger
-    //     ** as well, because, chronologically, they are scheduled AFTER this event.
-    //     ** In order to prevent this bug, we use 'cancelAndHoldAtTime()'. */
-
-    //     // compute the time AFTER which all the events of the gain paramter should be canceled
-    //     const cancelationStartTime = startTime;
-
-    //     /* then we cancel all events that start AFTER the previous cancelation time but we keep the value
-    //     ** that the parameter had when the cancelation started */ 
-    //     this.adsrGainNode.gain.cancelAndHoldAtTime(cancelationStartTime);
-
-    //     /* Attack-decay-sustain phase */
-    //     this.attackStartTime = cancelationStartTime; // save the attack start time
-    //     this.attackEndTime = this.attackStartTime + this.attackDuration; // the time the attack phase should end
-    //     this.decayEndTime = this.attackEndTime + this.decayDuration; // the time the decay phase should end
-    //     this.adsrGainNode.gain.linearRampToValueAtTime(Settings.maxAdsrSustainLevel, this.attackEndTime); // attack
-    //     this.adsrGainNode.gain.linearRampToValueAtTime(this.sustainLevel, this.decayEndTime); // decay
-
-    //     /* Release phase */
-    //     this.releaseStartTime = stopTime;
-    //     this.releaseEndTime = this.releaseStartTime + this.releaseDuration;
-    //     // for 'release' phase we use linear ramp, not exponential, because exponential goes down to quick
-    //     this.adsrGainNode.gain.linearRampToValueAtTime(Settings.minAdsrSustainLevel, this.releaseEndTime);
-    // }
-
     public getAttackTime(): number { return this.attackDuration; }
 
     public setAttackTime(attackTime: number): boolean
     {
         if (Settings.minAdsrAttackDuration <= attackTime && attackTime <= Settings.maxAdsrAttackDuration)
         {
-            AdsrEnvelopeSource.logger.debug(`setAttackTime(${attackTime})`);
+            AdsrEnvelopeGenerator.logger.debug(`setAttackTime(${attackTime})`);
 
             this.attackDuration = attackTime;
             return true; // value change was succesfull
         }
         else
         {
-            AdsrEnvelopeSource.logger.warn(`setAttackTime(${attackTime}): argument is outside bounds`);
+            AdsrEnvelopeGenerator.logger.warn(`setAttackTime(${attackTime}): argument is outside bounds`);
             return false; // value change was not succesfull
         }
     }
@@ -259,14 +224,14 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
     {
         if (Settings.minAdsrDecayDuration <= decayTime && decayTime <= Settings.maxAdsrDecayDuration)
         {
-            AdsrEnvelopeSource.logger.debug(`setDecayTime(${decayTime})`);
+            AdsrEnvelopeGenerator.logger.debug(`setDecayTime(${decayTime})`);
 
             this.decayDuration = decayTime;
             return true; // value change was succesfull
         }
         else
         {
-            AdsrEnvelopeSource.logger.warn(`setDecayTime(${decayTime}): argument is outside bounds`);
+            AdsrEnvelopeGenerator.logger.warn(`setDecayTime(${decayTime}): argument is outside bounds`);
             return false; // value change was not succesfull
         }
     }
@@ -277,14 +242,14 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
     {
         if (Settings.minAdsrSustainLevel <= sustainLevel && sustainLevel <= Settings.maxAdsrSustainLevel)
         {
-            AdsrEnvelopeSource.logger.debug(`setSustainLevel(${sustainLevel})`);
+            AdsrEnvelopeGenerator.logger.debug(`setSustainLevel(${sustainLevel})`);
 
             this.sustainLevel = sustainLevel;
             return true; // value change was succesfull
         }
         else
         {
-            AdsrEnvelopeSource.logger.warn(`setSustainLevel(${sustainLevel}): argument is outside bounds`);
+            AdsrEnvelopeGenerator.logger.warn(`setSustainLevel(${sustainLevel}): argument is outside bounds`);
             return false; // value change was not succesfull
         }
     }
@@ -295,14 +260,14 @@ export class AdsrEnvelopeSource extends RestartableSourceGenerator
     {
         if (Settings.minAdsrReleaseDuration <= releaseTime && releaseTime <= Settings.maxAdsrReleaseDuration)
         {
-            AdsrEnvelopeSource.logger.debug(`setReleaseTime(${releaseTime})`);
+            AdsrEnvelopeGenerator.logger.debug(`setReleaseTime(${releaseTime})`);
 
             this.releaseDuration = releaseTime;
             return true; // value change was succesfull
         }
         else
         {
-            AdsrEnvelopeSource.logger.warn(`setReleaseTime(${releaseTime}): argument is outside bounds`);
+            AdsrEnvelopeGenerator.logger.warn(`setReleaseTime(${releaseTime}): argument is outside bounds`);
             return false; // value change was not succesfull
         }
     }

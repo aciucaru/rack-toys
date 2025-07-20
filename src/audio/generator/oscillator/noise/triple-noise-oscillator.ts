@@ -1,5 +1,5 @@
 import { Settings } from "../../../../constants/settings";
-import { type EndableNode, RestartableSourceGenerator, ChildGenerator } from "../../../core/emitter";
+import { type EndableNode, RestartableGenerator, ChildGenerator } from "../../../core/emitter";
 import { WhiteNoiseOscillator } from "./white-noise";
 import { PinkNoiseOscillator } from "./pink-noise";
 import { BrownNoiseOscillator } from "./brown-noise";
@@ -33,7 +33,7 @@ export class TripleNoiseOscillator extends ChildGenerator
     private pinkNoiseOscNode!: PinkNoiseOscillator;
     private brownNoiseOscNode!: BrownNoiseOscillator;
 
-    private restartableNodes: Array<RestartableSourceGenerator>;
+    private restartableNodes: Array<RestartableGenerator>;
 
     // The mixer that toggles on/off the oscillator nodes
     // Must be initialized somewere inside the constructor, in this case the initNodes() method
@@ -94,7 +94,7 @@ export class TripleNoiseOscillator extends ChildGenerator
         /* Set the array of 'EndableNodes' (nodes with 'onended' event) */
         // this.setEndableNodes();
 
-        this.restartableNodes = new Array<RestartableSourceGenerator>();
+        this.restartableNodes = new Array<RestartableGenerator>();
         this.restartableNodes.push(this.whiteNoiseOscNode);
         this.restartableNodes.push(this.pinkNoiseOscNode);
         this.restartableNodes.push(this.brownNoiseOscNode);
@@ -104,7 +104,7 @@ export class TripleNoiseOscillator extends ChildGenerator
     public override getOutputNode(): AudioNode { return this.outputNode; }
 
     // Method inherited from 'RestartableSourceEmitter' abstract class
-    protected getRestartableGenerators(): RestartableSourceGenerator[]
+    protected getRestartableGenerators(): RestartableGenerator[]
     {
         return this.restartableNodes;
     }

@@ -14,7 +14,7 @@ export interface EndableNode
     onended: ((this: AudioScheduledSourceNode, event: Event) => any) | null;
 }
 
-export abstract class RestartableSourceGenerator implements Emitter
+export abstract class RestartableGenerator implements Emitter
 {
     // Inherited from 'Emitter' interface
     public abstract getOutputNode(): AudioNode;
@@ -107,7 +107,7 @@ export abstract class ChildGenerator implements Emitter, ComposableGenerator
     public abstract getOutputNode(): AudioNode;
 
     // Main method of this abstract class, must be implemented by subclass
-    protected abstract getRestartableGenerators(): Array<RestartableSourceGenerator>;
+    protected abstract getRestartableGenerators(): Array<RestartableGenerator>;
 
     // Inherited from 'ComposableGenerator' interface
     public recreateInternalNodes(): void

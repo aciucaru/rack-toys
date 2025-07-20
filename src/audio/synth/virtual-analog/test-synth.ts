@@ -7,7 +7,7 @@ import { PolySynth, SynthVoice } from "../../core/synth";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import { PulseOscillator } from "../../source-emitter/oscillator/melodic/pulse-oscillator";
+import { PulseOscillator } from "../../generator/oscillator/melodic/pulse-oscillator";
 
 
 export class TestMonoSynth extends SynthVoice<Note12TET>

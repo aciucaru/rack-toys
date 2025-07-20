@@ -5,13 +5,13 @@ import type { Emitter } from "../../core/emitter";
 
 import { Note12TETUtils } from "../../note/note12tet";
 
-import { TripleShapeOscillator } from "../../source-emitter/oscillator/melodic/triple-shape-oscillator";
-import { TripleNoiseOscillator } from "../../source-emitter/oscillator/noise/triple-noise-oscillator";
+import { TripleShapeOscillator } from "../../generator/oscillator/melodic/triple-shape-oscillator";
+import { TripleNoiseOscillator } from "../../generator/oscillator/noise/triple-noise-oscillator";
 
 import { AdditiveMixer } from "../../intermediate-emitter/mixer/additive-mixer";
 import { OscFilter } from "../../intermediate-emitter/filter/lowpass-filter";
 
-import { AdsrEnvelopeSource } from "../../source-emitter/modulator/adsr-envelope";
+import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope";
 
 import type { SynthVoice } from "../../core/synth";
 
@@ -36,7 +36,7 @@ export class AnalogMonoSynth implements Emitter, SynthVoice
     // the filter and envelope:
     private filterNode: OscFilter;
 
-    private voiceAdsrEnvelope: AdsrEnvelopeSource;
+    private voiceAdsrEnvelope: AdsrEnvelopeGenerator;
     private voiceAdsrGainNode: GainNode;
 
     // the final node
@@ -72,7 +72,7 @@ export class AnalogMonoSynth implements Emitter, SynthVoice
         this.filterNode = new OscFilter(this.audioContext);
 
         // instantiate and set the ADSR envelope
-        this.voiceAdsrEnvelope = new AdsrEnvelopeSource(this.audioContext);
+        this.voiceAdsrEnvelope = new AdsrEnvelopeGenerator(this.audioContext);
         this.voiceAdsrGainNode = this.audioContext.createGain();
         this.voiceAdsrGainNode.gain.setValueAtTime(Settings.adsrOffLevel, this.audioContext.currentTime);
 
@@ -181,7 +181,7 @@ export class AnalogMonoSynth implements Emitter, SynthVoice
 
     public getFilter(): OscFilter { return this.filterNode; }
 
-    public getAdsrEnvelope(): AdsrEnvelopeSource { return this.voiceAdsrEnvelope; }
+    public getAdsrEnvelope(): AdsrEnvelopeGenerator { return this.voiceAdsrEnvelope; }
 
     public getAudioContext(): AudioContext { return this.audioContext; }
 
