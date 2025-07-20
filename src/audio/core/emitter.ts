@@ -11,7 +11,6 @@ export interface Emitter
 export interface EndableNode
 {
     stop(time: number): void;
-    // onended: (() => void) | null;
     onended: ((this: AudioScheduledSourceNode, event: Event) => any) | null;
 }
 
@@ -29,10 +28,14 @@ export abstract class RestartableSourceGenerator implements Emitter
     protected abstract stopNodes(): void;
     protected abstract disconnectNodes(): void;
 
-    public startSource(): void
+    public recreateSource(): void
     {
         this.initNodes();
         this.setEndableNodes();
+    }
+
+    public startSource(): void
+    {
         this.startNodes();
     }
 
@@ -76,6 +79,7 @@ export abstract class RestartableSourceGenerator implements Emitter
 
 export interface ComposableGenerator
 {
+    recreateInternalNodes(): void;
     startSignal(): void;
     stopSignal(): void;
 }
@@ -88,7 +92,17 @@ export abstract class ChildGenerator implements Emitter, ComposableGenerator
     // Main method of this abstract class, must be implemented by subclass
     protected abstract getRestartableGenerators(): Array<RestartableSourceGenerator>;
 
-    // Inherited from 'Generator' interface
+    // Inherited from 'ComposableGenerator' interface
+    public recreateInternalNodes(): void
+    {
+        const restartableNodes = this.getRestartableGenerators();
+        for (const restartableNode of restartableNodes)
+        {
+            restartableNode.recreateSource();
+        }
+    }
+
+    // Inherited from 'ComposableGenerator' interface
     public startSignal(): void
     {
         const restartableNodes = this.getRestartableGenerators();
@@ -98,7 +112,7 @@ export abstract class ChildGenerator implements Emitter, ComposableGenerator
         }
     }
 
-    // Inherited from 'Generator' interface
+    // Inherited from 'ComposableGenerator' interface
     public stopSignal(): void
     {
         const restartableNodes = this.getRestartableGenerators();
@@ -117,7 +131,17 @@ export abstract class CompositeGenerator implements ComposableGenerator
     // Main method of this abstract class, must be implemented by subclass
     protected abstract getComposableGenerators(): Array<ComposableGenerator>;
 
-    // Inherited from 'Generator' interface
+    // Inherited from 'ComposableGenerator' interface
+    public recreateInternalNodes(): void
+    {
+        const restartableNodes = this.getComposableGenerators();
+        for (const restartableNode of restartableNodes)
+        {
+            restartableNode.recreateInternalNodes();
+        }
+    }
+
+    // Inherited from 'ComposableGenerator' interface
     public startSignal(): void
     {
         const restartableNodes = this.getComposableGenerators();
@@ -127,7 +151,7 @@ export abstract class CompositeGenerator implements ComposableGenerator
         }
     }
 
-    // Inherited from 'Generator' interface
+    // Inherited from 'ComposableGenerator' interface
     public stopSignal(): void
     {
         const restartableNodes = this.getComposableGenerators();
