@@ -3,7 +3,7 @@ import type { Emitter } from "./emitter";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import type { NoteUtils, Note } from "./note";
+import type { Note } from "./note";
 
 /* Enum-style structure, in TypeScript it's more recommended to use such pattern than to use true Enums.
 ** This 'enum-style' structure represents the possible states a synth voice could be in:
@@ -29,7 +29,7 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     private attackTriggerTime: number = Number.MAX_VALUE;
     private releaseFinishTime: number = Number.MAX_VALUE;
 
-    // The only abstract methods of this class
+    // The abstracts methods of this class
     protected abstract startSignal(note: N): void;
     // protected abstract releaseSignal(onReleaseFinshed: () => void): void;
     protected abstract releaseSignal(): void;
@@ -37,16 +37,13 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract MonoSynth", minLevel: Settings.minLogLevel });
 
-    constructor(audioContext: AudioContext, note: N)
+    constructor(audioContext: AudioContext)
     {
         this.audioContext = audioContext;
-        this.note = note;
     }
 
     // Inherited from 'Emitter' interface
     public abstract getOutputNode(): AudioNode;
-
-    // public isActive(): boolean { return this._isActive; }
 
     private reset(): void
     {
@@ -178,14 +175,10 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
     public getVoices(): Array<V> { return this.voices; }
 
-    // public noteOn(octaves: number, semitones: number): void;
-    // public noteOff(octaves: number, semitones: number): void;
-
-    /* Play one new note. Finds a free voice (or steals the oldest one),
-    ** calls its noteOn(), and remembers the mapping so noteOff()
-    ** can later turn *that* voice off. */
+    /* Play one new note. Finds a free voice (or steals the oldest one) */
     public triggerAttack(note: N)
     {
+        PolySynth.abstractClassLogger.debug(``);
         PolySynth.abstractClassLogger.debug(`======================== ATTACK ========================`);
 
         /* First of all, update the state of all voices in this poly synth.
@@ -235,11 +228,13 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
         }
 
         PolySynth.abstractClassLogger.debug("========================================================");
+        PolySynth.abstractClassLogger.debug(``);
     }
 
     // Release exactly the voice that was playing this midiNote
     public triggerRelease(note: N)
     {
+        PolySynth.abstractClassLogger.debug(``);
         PolySynth.abstractClassLogger.debug(`======================== RELEASE ========================`);
 
         // First of all, update the state of all voices in this poly synth
@@ -270,6 +265,7 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
             PolySynth.abstractClassLogger.warn(`triggerRelease(${note.toString()}) voice not found for note`);
 
         PolySynth.abstractClassLogger.debug("========================================================");
+        PolySynth.abstractClassLogger.debug(``);
     }
 
     /* 

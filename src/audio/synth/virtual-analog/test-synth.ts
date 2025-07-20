@@ -1,8 +1,6 @@
 import { Settings } from "../../../constants/settings";
 import { audioContext } from "../../../constants/shareable-audio-nodes";
 
-import type { Emitter } from "../../core/emitter";
-
 import { Note12TETUtils, Note12TET } from "../../note/note12tet";
 
 import { PolySynth, SynthVoice } from "../../core/synth";
@@ -10,15 +8,12 @@ import { PolySynth, SynthVoice } from "../../core/synth";
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 import { PulseOscillator } from "../../source-emitter/oscillator/melodic/pulse-oscillator";
-import type { NoteUtils, Note } from "../../core/note";
 
 
 export class TestMonoSynth extends SynthVoice<Note12TET>
 {
     private noteUtils: Note12TETUtils;
     private oscNoteOffset: Note12TET;
-
-    // private audioContext: AudioContext;
 
     // the oscillators:
     private oscillator: PulseOscillator;
@@ -30,7 +25,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 
     constructor(audioContext: AudioContext)
     {
-        super(audioContext, new Note12TET(4, 9, 0));
+        super(audioContext);
 
         this.noteUtils = new Note12TETUtils();
         this.oscNoteOffset = new Note12TET(0, 0, 0);
@@ -38,13 +33,9 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         this.audioContext = audioContext;
 
         this.oscillator = new PulseOscillator(this.audioContext);
-        this.oscillator.setFrequency(this.noteUtils.getFrequencyWithOffset(this.getNote()!, this.oscNoteOffset));
 
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
-
-        // this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
-        // this.outputNode.gain.setValueAtTime(1.0, this.audioContext.currentTime);
 
         // the filtered oscillators are taken from the filter output
         this.oscillator.getOutputNode().connect(this.outputNode);
@@ -91,12 +82,6 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         this.oscillator.stopSource();
     }
 
-    // Method inheritted from 'MonoSynth<>' abstract class
-    // protected getNoteComputer(): NoteUtils<Note12TET>
-    // {
-    //     return new Note12TETUtils();
-    // }
-
     protected getReleaseDuration(): number
     {
         return 0.5;
@@ -108,11 +93,6 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 // N extends Note, M extends MonoSynth<N>
 export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
 {
-    // private audioContext: AudioContext; // inherited
-
-    // the final node
-    // private outputNode: GainNode; // inherited
-
     private static readonly logger: Logger<ILogObj> = new Logger({name: "TestPolySynth", minLevel: Settings.minLogLevel});
 
     constructor(audioContext: AudioContext, numberOfVoices: number)
@@ -144,12 +124,6 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
         return new TestMonoSynth(this.audioContext);
     }
 
-    // Inherited from Emitter interface
-    // getOutputNode(): AudioNode
-    // {
-    //     return this.outputNode;
-    // }
-
     public setMainGain(gain: number): void
     {
         if (Settings.minVoiceGain <= gain && gain <= Settings.maxVoiceGain)
@@ -174,4 +148,4 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
     }
 }
 
-export const testPolySynth = new TestPolySynth(audioContext, 1);
+export const testPolySynth = new TestPolySynth(audioContext, 5);
