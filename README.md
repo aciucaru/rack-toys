@@ -3,7 +3,7 @@ This branch is made in order to polish the abstract classes and interfaces desig
 
 The code corresponding to this branch is in the `src/audio/core/synth.ts` file and contains two main classes/interfaces:
 - **abstract class SynthVoice<N extends Note>**: this represents a single voice
-- **abstract class PolySynth<N extends Note, V extends SynthVoice<N>>**: this represents a polyphonic synthesizer that internally uses multiple **SynthVoice<N extends Note>** instances; it contains all the logic that implements the polyphonic behaviour
+- **abstract class PolySynth<N extends Note, V extends SynthVoice< N >>**: this represents a polyphonic synthesizer that internally uses multiple **SynthVoice<N extends Note>** instances; it contains all the logic that implements the polyphonic behaviour
 
 
 These abstract classes and interfaces will then be used by all synthesizers in the this project.
