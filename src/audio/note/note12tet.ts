@@ -36,7 +36,7 @@ export class Note12TET implements Note
 
     public toString(): string
     {
-        return `{${this.octaves}, ${this.semitones}, ${this.cents}}`;
+        return `note{${this.octaves}, ${this.semitones}, ${this.cents}}`;
     }
 }
 

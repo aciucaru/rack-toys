@@ -115,7 +115,7 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     public toString(): string
     {
-        return `voice(${this.state}, ${this.note}, ${this.attackTriggerTime}, ${this.releaseFinishTime})`;
+        return `voice{${this.state}, ${this.note}, ${this.attackTriggerTime}, ${this.releaseFinishTime}}`;
     }
 }
 
@@ -223,12 +223,12 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
             if (freeVoice)
             {
-                PolySynth.abstractClassLogger.warn(`triggerAttack(): free voice found or stolen: ${freeVoice.toString()}`);
+                PolySynth.abstractClassLogger.warn(`triggerAttack(): free or stolen voice found before Attack: ${freeVoice.toString()}`);
                 
                 // Play note on that voice
                 freeVoice.triggerAttack(note);
 
-                PolySynth.abstractClassLogger.warn(`triggerAttack(): voice after Attack: ${freeVoice.toString()}`);
+                PolySynth.abstractClassLogger.warn(`triggerAttack(): free or stolen voice found after Attack: ${freeVoice.toString()}`);
             }
             else
                 PolySynth.abstractClassLogger.warn(`triggerAttack(): NO VOICE IS AVAILABLE`);
@@ -252,7 +252,7 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
         // If the voice was found, then stop it
         if (voice)
         {
-            PolySynth.abstractClassLogger.debug(`triggerRelease(${note.toString()}): voice found: ${voice.toString()}`);
+            PolySynth.abstractClassLogger.debug(`triggerRelease(${note.toString()}): voice found before Release: ${voice.toString()}`);
 
             // Check the voice state
             const state = voice.checkAndUpdateState();
@@ -263,7 +263,7 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
                 // Then stop the voice
                 voice.triggerRelease();
 
-                PolySynth.abstractClassLogger.debug(`triggerRelease(${note.toString()}): voice after Release: ${voice.toString()}`);
+                PolySynth.abstractClassLogger.debug(`triggerRelease(${note.toString()}): voice found after Release: ${voice.toString()}`);
             }
         }
         else
