@@ -37,15 +37,12 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         // instantiate and set the final gain node
         this.outputNode = this.audioContext.createGain();
 
-        // the filtered oscillators are taken from the filter output
+        // connect teh oscillator to the destination (built-into the base class)
         this.oscillator.getOutputNode().connect(this.outputNode);
     }
 
     // Method inheritted from 'Emitter' interface
-    public getOutputNode(): AudioNode
-    {
-        return this.outputNode;
-    }
+    public getOutputNode(): AudioNode { return this.outputNode; }
 
     // Method inheritted from 'MonoSynth<>' abstract class
     protected startSignal(note: Note12TET): void
@@ -54,11 +51,12 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
 
         // first, set the internal frequency for all melodic oscillators
         const oscFreq = this.noteUtils.getFrequencyWithOffset(note, this.oscNoteOffset);
-        this.oscillator.setFrequency(oscFreq); // maybe should just set octaves and semitones?
 
         // const currentTime = this.audioContext.currentTime;
         // this.outputNode.gain.setTargetAtTime(Settings.maxOscGain, currentTime, 2); // example 500 milisec release time
         this.oscillator.startSource();
+
+        this.oscillator.setFrequency(oscFreq); // maybe should just set octaves and semitones?
     }
 
     // Method inheritted from 'MonoSynth<>' abstract class
@@ -90,7 +88,6 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
     public getOscillator(): PulseOscillator { return this.oscillator; }
 }
 
-// N extends Note, M extends MonoSynth<N>
 export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
 {
     private static readonly logger: Logger<ILogObj> = new Logger({name: "TestPolySynth", minLevel: Settings.minLogLevel});
@@ -98,22 +95,6 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
     constructor(audioContext: AudioContext, numberOfVoices: number)
     {
         super(audioContext, numberOfVoices);
-
-        // this.audioContext = audioContext;
-
-        // Instantiate 'voices' (the monosynths)
-        this.setVoices(numberOfVoices);
-
-        // instantiate and set the final gain node
-        this.outputNode = this.audioContext.createGain();
-        // this.outputNode.gain.setValueAtTime(Settings.maxVoiceGain, this.audioContext.currentTime);
-        this.outputNode.gain.setValueAtTime(1.0, this.audioContext.currentTime);
-
-        // connect individual voices to the final output node
-        for (const voice of this.getVoices())
-        {
-            voice.getOutputNode().connect(this.outputNode);
-        }
 
         this.outputNode.connect(this.audioContext.destination);
     }
