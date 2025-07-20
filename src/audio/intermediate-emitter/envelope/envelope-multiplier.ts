@@ -118,7 +118,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
         // Compute the start and end of the 'release' phase
         this.releaseStartTime = cancelationStartTime;
         this.releaseEndTime = this.releaseStartTime + this.releaseDuration;
-        this.offTime = this.releaseEndTime + Settings.adsrSafetyDuration;
+        // this.offTime = this.releaseEndTime + Settings.adsrSafetyDuration;
 
         // RELEASE phase
         // We start the actual 'release' phase by ramping down to the minimum possible.
