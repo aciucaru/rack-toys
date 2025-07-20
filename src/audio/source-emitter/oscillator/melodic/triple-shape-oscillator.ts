@@ -9,7 +9,6 @@ import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 import { SimpleOscillator, SimpleWaveshape } from "./simple-oscillator";
 
-
 export class TripleShapeOscillator extends ChildGenerator implements FrequencyBasedSignal, PulseBasedSignal
 {
     private audioContext: AudioContext;

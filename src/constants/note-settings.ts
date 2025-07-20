@@ -1,6 +1,6 @@
 import { Constants } from "./constants";
 import { Settings } from "./settings";
-import { Note12TET } from "../audio/note/note";
+import { Note12TETUtils } from "../audio/note/note12tet";
 
 export class NoteSettings
 {
@@ -12,17 +12,19 @@ export class NoteSettings
 
     static
     {
-        const minNote = new Note12TET(3, 0);
-        minNote.setOctavesOffset(Settings.minOscOctavesOffset);
-        minNote.setSemitonesOffset(Settings.minOscSemitonesOffset);
-        minNote.setCentsOffset(Settings.minOscCentsOffset);
-        NoteSettings.minFrequency = minNote.getFreq();
+        // const minNote = new Note12TET(3, 0);
+        // minNote.setOctavesOffset(Settings.minOscOctavesOffset);
+        // minNote.setSemitonesOffset(Settings.minOscSemitonesOffset);
+        // minNote.setCentsOffset(Settings.minOscCentsOffset);
+        // NoteSettings.minFrequency = minNote.getFreq();
+        NoteSettings.minFrequency = 0.01;
 
-        const maxNote = new Note12TET(6, 11);
-        maxNote.setOctavesOffset(Settings.maxOscOctavesOffset);
-        maxNote.setSemitonesOffset(Settings.maxOscSemitonesOffset);
-        maxNote.setCentsOffset(Settings.maxOscCentsOffset);
-        NoteSettings.maxFrequency = maxNote.getFreq();
+        // const maxNote = new Note12TET(6, 11);
+        // maxNote.setOctavesOffset(Settings.maxOscOctavesOffset);
+        // maxNote.setSemitonesOffset(Settings.maxOscSemitonesOffset);
+        // maxNote.setCentsOffset(Settings.maxOscCentsOffset);
+        // NoteSettings.maxFrequency = maxNote.getFreq();
+        NoteSettings.maxFrequency = 100000.0;
     }
 }
 
