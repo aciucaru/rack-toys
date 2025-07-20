@@ -1,5 +1,5 @@
 import { Settings } from "../../../constants/settings";
-import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope";
+import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope-generator";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";

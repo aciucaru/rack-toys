@@ -11,7 +11,7 @@ import { TripleNoiseOscillator } from "../../generator/oscillator/noise/triple-n
 import { AdditiveMixer } from "../../intermediate-emitter/mixer/additive-mixer";
 import { OscFilter } from "../../intermediate-emitter/filter/lowpass-filter";
 
-import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope";
+import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope-generator";
 
 import type { SynthVoice } from "../../core/synth";
 
