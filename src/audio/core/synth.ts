@@ -23,7 +23,7 @@ export type VoiceState = (typeof VoiceState)[keyof typeof VoiceState];
 
 export abstract class SynthVoice<N extends Note> implements Emitter
 {
-    protected audioContext: AudioContext;
+    private audioContext: AudioContext;
 
     private state: VoiceState = VoiceState.Free;
     private note: N | null = null;
@@ -34,7 +34,7 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     protected abstract startSignal(note: N): void;
     // protected abstract releaseSignal(onReleaseFinshed: () => void): void;
     protected abstract releaseSignal(): void;
-    protected abstract getEstimatedReleaseDuration(): number;
+    // protected abstract getEstimatedReleaseDuration(): number;
     protected abstract getEnvelopeMultiplier(): EnvelopeMultiplier;
 
     private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract MonoSynth", minLevel: Settings.minLogLevel });
@@ -46,6 +46,8 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     // Inherited from 'Emitter' interface
     public abstract getOutputNode(): AudioNode;
+
+    public getAudioContext(): AudioContext { return this.audioContext; }
 
     private reset(): void
     {
@@ -89,7 +91,8 @@ export abstract class SynthVoice<N extends Note> implements Emitter
     public triggerRelease(): void
     {
         this.state = VoiceState.InReleasePhase;
-        this.releaseFinishTime = this.audioContext.currentTime + this.getEstimatedReleaseDuration();
+        // this.releaseFinishTime = this.audioContext.currentTime + this.getEstimatedReleaseDuration();
+        this.releaseFinishTime = this.getEnvelopeMultiplier().getFinsihTime();
 
         // this.releaseSignal(() => {this._isReleasing = false;});
         this.releaseSignal();
@@ -122,12 +125,12 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
 export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> implements Emitter
 {
-    protected audioContext: AudioContext;
+    private audioContext: AudioContext;
 
     /** The pool of all voices (a voice is bassically a monophonic synthesizer). */
-    protected voices: Array<V>;
+    private voices: Array<V>;
 
-    protected outputNode: GainNode;
+    private outputNode: GainNode;
 
     private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract PolySynth", minLevel: Settings.minLogLevel });
     
@@ -143,11 +146,13 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
         this.setVoices(numberOfVoices);
     }
     
-    // Inherited from 'Emitter' interface
-    public getOutputNode(): AudioNode { return this.outputNode; }
-
     /* Any subclass must implement this method and return a newly created MonoSynth */
     protected abstract createVoice(audioContext: AudioContext): V;
+
+    public getAudioContext(): AudioContext { return this.audioContext; }
+
+    // Inherited from 'Emitter' interface
+    public getOutputNode(): AudioNode { return this.outputNode; }
 
     public setVoices(numberOfVoices: number)
     {
@@ -201,17 +206,6 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
             PolySynth.abstractClassLogger.debug(`triggerAttack(${note.toString()})`);
 
             voice.triggerAttack(note); // trigger the note on the very same voice that played it before
-
-            // if (state === VoiceState.InAttackPhase || state === VoiceState.InReleasePhase)
-            // {
-            //     PolySynth.abstractClassLogger.warn(`triggerAttack(): requested note: ${note.toString()} already has active voice: ${voice.toString()}`);
-                
-            //     // Then stop the voice
-            //     voice.triggerRelease(); // also sets the state
-            // }
-            // else
-            //     PolySynth.abstractClassLogger.debug(`triggerAttack(): found inactive voice: ${voice.toString()} associated with note: ${note.toString()}`);
-        
         }
         else // If there was no voice already playing the supplied note
         {
@@ -245,7 +239,6 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
         this.checkAndUpdateAllVoices();
 
         // Try to find the voice that is asociated with the supplied note and is also playing (is active) 
-        // let voice = this.voices.find(voice => voice.getNote().equals(note) && voice.isActive());
         const voice = this.findVoiceByNote(note);
 
         // If the voice was found, then stop it
@@ -281,6 +274,21 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
         for (let i = 0; i < n; i++) this.voices.push(this.createVoice(this.audioContext));
     }
 
+    public setGain(gain: number): void
+    {
+        if (Settings.minVoiceGain <= gain && gain <= Settings.maxVoiceGain)
+        {
+            PolySynth.abstractClassLogger.debug(`setGain(${gain})`);
+
+            const currentTime = this.getAudioContext().currentTime;
+
+            // set the new value
+            this.outputNode.gain.linearRampToValueAtTime(gain, currentTime + 0.1);
+        }
+        else
+            PolySynth.abstractClassLogger.warn(`setGain(${gain}): value outside bounds`);
+    }
+
     private findVoiceByNote(note: N): V | undefined
     {
         return this.voices.find(voice => voice.getNote()?.equals(note));
@@ -311,6 +319,7 @@ export abstract class PolySynth<N extends Note, V extends SynthVoice<N>> impleme
 
     private getOldestVoice(): V
     {
+        // Functional style code
         // If no free voice was found, attempt to steal the oldest one
         // First we, find the oldest voice
         // const oldestVoice = this.voices.reduce( (oldVoice, currentVoice) =>
