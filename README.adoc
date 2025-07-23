@@ -2,13 +2,42 @@
 This branch is made in order to add a standardized envelope to the *SynthVoice* abstract class, which will be inherited by
 any subclass.
 
-It is necessay that the individual synth voices have an internal envelope (like a ADSR envelope) because, otherwise, the polyphonic synthesizer using those voices will sound bad when multiple notes are playing at the same time.
+It is necessay that the individual synth voices have an internal envelope (like an ADSR envelope) because, otherwise, the
+polyphonic synthesizer using those voices will sound bad when multiple notes are playing at the same time.
 
-Forcing that each single voice has some kind of volume envelope gives a much nicer sound, a more predictable result.
+Forcing each single voice to have some kind of volume envelope gives a much nicer sound, a more predictable result.
 
-The actual subclass of *SynthVoice* abstract class will provide the volume envelope, so the design is flexible.
+The volume will be provided by any subclass of *SynthVoice* and it can be any type of envelope (not just ADSR) so the 
+design is flexible.
 
-= React + TypeScript + Vite
+In order to obtain this design we use the following:
+
+* *interface EnvelopeMultiplier*: this is the template for any envelope
+* *abstract class SynthVoice<N extends Note>*: this represents a single synth voice that has an internal envelope
+
+[,ts]
+----
+export interface EnvelopeMultiplier extends Emitter, Receiver
+{
+    triggerAttack(): void;
+    triggerRelease(): void;
+    getFinsihTime(): number;
+}
+----
+
+[,ts]
+----
+export abstract class SynthVoice<N extends Note> implements Emitter
+{
+    // ...
+    protected abstract startSignal(note: N): void;
+    protected abstract releaseSignal(): void;
+    protected abstract getEnvelopeMultiplier(): EnvelopeMultiplier; // this is the method that must return an envelope
+    // ...
+}
+----
+
+== React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

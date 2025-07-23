@@ -128,7 +128,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
     }
 
     // Method inherited from 'EnvelopeMultiplier' interface
-    public getEstimatedReleaseDuration(): number { return this.releaseDuration; }
+    public getFinsihTime(): number { return this.releaseDuration; }
 
     public setParams(attackDuration: number, decayDuration: number, sustainLevel: number, releaseDuration: number)
     {
