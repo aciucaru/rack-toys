@@ -1,4 +1,4 @@
-import { Settings } from "../../../../constants/settings";
+import { Settings } from "../../../settings/settings";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";

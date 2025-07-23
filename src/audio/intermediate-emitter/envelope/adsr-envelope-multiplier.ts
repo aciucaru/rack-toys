@@ -1,4 +1,4 @@
-import { Settings } from "../../../constants/settings";
+import { AdsrSettings, Settings } from "../../settings/settings";
 
 import type { EnvelopeMultiplier } from "../../core/envelope-multiplier";
 
@@ -28,17 +28,17 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
     // private outputNode: GainNode;
 
     // Main parameters: durations (not times!) and sustain level
-    private attackDuration: number = Settings.defaultAdsrAttackDuration;
-    private decayDuration: number = Settings.defaultAdsrDecayDuration;
-    private sustainLevel: number = Settings.defaultAdsrSustainLevel;
-    private releaseDuration: number = Settings.defaultAdsrReleaseDuration;
+    private attackDuration: number = AdsrSettings.defaultAttackDuration;
+    private decayDuration: number = AdsrSettings.defaultDecayDuration;
+    private sustainLevel: number = AdsrSettings.defaultSustainLevel;
+    private releaseDuration: number = AdsrSettings.defaultReleaseDuration;
 
     // Time parameters:
     private onTime = 0; // time when the ADSR is turned on
-    private attackStartTime = this.onTime + Settings.adsrSafetyDuration;
+    private attackStartTime = this.onTime + AdsrSettings.safetyDuration;
     private attackEndTime = this.attackDuration; // the time the attack phase should end
     private decayEndTime = this.attackEndTime + this.decayDuration; // the time the decay phase should end
-    private releaseStartTime = this.decayEndTime + Settings.adsrSafetyDuration; // the time the release should start
+    private releaseStartTime = this.decayEndTime + AdsrSettings.safetyDuration; // the time the release should start
     private releaseEndTime = this.releaseStartTime + this.releaseDuration; // the time the release phase should end
     // private offTime = this.releaseEndTime + Settings.adsrSafetyDuration; // time when ADSR is turned off
     
@@ -51,7 +51,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
         // Instantiate the gain node responsible for the ADSR envelope effect
         // This is the node who's 'gain' parameter gives the effect of an 'envelope'
         this.adsrGainNode = this.audioContext.createGain();
-        this.adsrGainNode.gain.setValueAtTime(Settings.minAdsrSustainLevel, this.audioContext.currentTime);
+        this.adsrGainNode.gain.setValueAtTime(AdsrSettings.minSustainLevel, this.audioContext.currentTime);
     }
 
     // Method inherited from 'EnvelopeMultiplier' interface (through 'Receiver' interface)
@@ -83,8 +83,8 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
         ** with new values.
         ** Overwriting the ADSR times should only be done after we used them to check what phase we are in!
         ** These new ADSR times will be used in the stop() method as well. */
-        this.onTime = cancelationStartTime + Settings.adsrSafetyDuration;
-        this.attackStartTime = this.onTime + Settings.adsrSafetyDuration; // save the attack start time
+        this.onTime = cancelationStartTime + AdsrSettings.safetyDuration;
+        this.attackStartTime = this.onTime + AdsrSettings.safetyDuration; // save the attack start time
         this.attackEndTime = this.attackStartTime + this.attackDuration; // the time the attack phase should end
         this.decayEndTime = this.attackEndTime + this.decayDuration; // the time the decay phase should end
 
@@ -92,7 +92,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
         // this.outputNode.gain.linearRampToValueAtTime(Settings.adsrOnLevel, this.onTime);
 
         // ATTACK phase
-        this.adsrGainNode.gain.linearRampToValueAtTime(Settings.maxAdsrSustainLevel, this.attackEndTime);
+        this.adsrGainNode.gain.linearRampToValueAtTime(AdsrSettings.maxSustainLevel, this.attackEndTime);
 
         // DECAY phase
         this.adsrGainNode.gain.linearRampToValueAtTime(this.sustainLevel, this.decayEndTime);
@@ -123,7 +123,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
         // RELEASE phase
         // We start the actual 'release' phase by ramping down to the minimum possible.
         // For 'release' phase we use linear ramp, not exponential, because exponential goes down to quick.
-        this.adsrGainNode.gain.linearRampToValueAtTime(Settings.minAdsrSustainLevel, this.releaseEndTime);
+        this.adsrGainNode.gain.linearRampToValueAtTime(AdsrSettings.minSustainLevel, this.releaseEndTime);
         // this.outputNode.gain.linearRampToValueAtTime(Settings.adsrOffLevel, this.offTime);
     }
 
@@ -142,7 +142,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
 
     public setAttackDuration(attackDuration: number): boolean
     {
-        if (Settings.minAdsrAttackDuration <= attackDuration && attackDuration <= Settings.maxAdsrAttackDuration)
+        if (AdsrSettings.minAttackDuration <= attackDuration && attackDuration <= AdsrSettings.maxAttackDuration)
         {
             AdsrEnvelopeMultiplier.logger.debug(`setAttackTime(${attackDuration})`);
 
@@ -160,7 +160,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
 
     public setDecayDuration(decayDuration: number): boolean
     {
-        if (Settings.minAdsrDecayDuration <= decayDuration && decayDuration <= Settings.maxAdsrDecayDuration)
+        if (AdsrSettings.minDecayDuration <= decayDuration && decayDuration <= AdsrSettings.maxDecayDuration)
         {
             AdsrEnvelopeMultiplier.logger.debug(`setDecayTime(${decayDuration})`);
 
@@ -178,7 +178,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
 
     public setSustainLevel(sustainLevel: number): boolean
     {
-        if (Settings.minAdsrSustainLevel <= sustainLevel && sustainLevel <= Settings.maxAdsrSustainLevel)
+        if (AdsrSettings.minSustainLevel <= sustainLevel && sustainLevel <= AdsrSettings.maxSustainLevel)
         {
             AdsrEnvelopeMultiplier.logger.debug(`setSustainLevel(${sustainLevel})`);
 
@@ -196,7 +196,7 @@ export class AdsrEnvelopeMultiplier implements EnvelopeMultiplier
 
     public setReleaseDuration(releaseDuration: number): boolean
     {
-        if (Settings.minAdsrReleaseDuration <= releaseDuration && releaseDuration <= Settings.maxAdsrReleaseDuration)
+        if (AdsrSettings.minReleaseDuration <= releaseDuration && releaseDuration <= AdsrSettings.maxReleaseDuration)
         {
             AdsrEnvelopeMultiplier.logger.debug(`setReleaseTime(${releaseDuration})`);
 

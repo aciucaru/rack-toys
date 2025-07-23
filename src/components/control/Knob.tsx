@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Settings } from "../../constants/settings";
+import { Settings } from "../../audio/settings/settings";
 import { Logger } from "tslog";
 
 import styles from "./Knob.module.css";

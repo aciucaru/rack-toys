@@ -1,5 +1,5 @@
-import { Settings } from "../../../../constants/settings";
-import { NoteSettings } from "../../../../constants/note-settings";
+import { OscillatorSettings, Settings } from "../../../settings/settings";
+import { NoteSettings } from "../../../settings/note-settings";
 
 import { RestartableGenerator, type EndableNode } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
@@ -77,8 +77,8 @@ export class PulseOscillator extends RestartableGenerator implements FrequencyBa
         this.sawOscillatorNode.frequency.setValueAtTime(NoteSettings.defaultFrequency, this.audioContext.currentTime);
 
         // define the curve for the constant wave shaper node
-        this.constantCurve[0] = Settings.defaultOscPulseWidth;
-        this.constantCurve[1] = Settings.defaultOscPulseWidth;
+        this.constantCurve[0] = OscillatorSettings.defaultPulseWidth;
+        this.constantCurve[1] = OscillatorSettings.defaultPulseWidth;
 
         // define the curve for the square wave shaper node
         this.squareCurve.fill(-1, 0, 128); // set all elements from 0...127 to value -1
@@ -91,7 +91,7 @@ export class PulseOscillator extends RestartableGenerator implements FrequencyBa
         // instatiate the gain node
         this.pulseWidthGainNode = this.audioContext.createGain();
         // set the initial gain of the gain nodes
-        this.pulseWidthGainNode.gain.setValueAtTime(Settings.defaultOscPulseWidth, this.audioContext.currentTime);
+        this.pulseWidthGainNode.gain.setValueAtTime(OscillatorSettings.defaultPulseWidth, this.audioContext.currentTime);
 
         // 2. Connect nodes between them:
         this.sawOscillatorNode.connect(this.constantWaveShaper);
@@ -160,7 +160,7 @@ export class PulseOscillator extends RestartableGenerator implements FrequencyBa
     // Method inherited from interface 'PulseBasedSignal'
     public setPulseWidth(pulseWidth: number): boolean
     {
-        if (Settings.minOscPulseWidth <= pulseWidth && pulseWidth <= Settings.maxOscPulseWidth)
+        if (OscillatorSettings.minPulseWidth <= pulseWidth && pulseWidth <= OscillatorSettings.maxPulseWidth)
         {
             PulseOscillator.logger.debug(`setPulseWidth(${pulseWidth})`);
 

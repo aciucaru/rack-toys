@@ -1,4 +1,4 @@
-import { Settings } from "../../../constants/settings";
+import { Settings } from "../../settings/settings";
 import { audioContext } from "../../../constants/shareable-audio-nodes";
 
 import { Note12TETUtils, Note12TET } from "../../note/note12tet";

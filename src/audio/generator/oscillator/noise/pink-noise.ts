@@ -1,4 +1,4 @@
-import { Settings } from "../../../../constants/settings";
+import { Settings } from "../../../settings/settings";
 import { NoiseOscillator } from "./noise-oscillator";
 
 import { Logger } from "tslog";

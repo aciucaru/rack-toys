@@ -1,5 +1,5 @@
-import { Constants } from "../../constants/constants";
-import { Settings } from "../../constants/settings";
+import { Constants } from "../settings/constants";
+import { Settings } from "../settings/settings";
 import type { NoteUtils, Note } from "../core/note";
 
 import { Logger } from "tslog";

@@ -1,4 +1,4 @@
-import { Settings } from "../../../../constants/settings";
+import { Settings } from "../../../settings/settings";
 import { type EndableNode, RestartableGenerator, ChildGenerator } from "../../../core/emitter";
 import { WhiteNoiseOscillator } from "./white-noise";
 import { PinkNoiseOscillator } from "./pink-noise";

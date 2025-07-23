@@ -1,4 +1,4 @@
-import { Settings } from "../../../../constants/settings";
+import { Settings } from "../../../settings/settings";
 import { PulseOscillator } from "./pulse-oscillator";
 import { ToggleMixer } from "../../../intermediate-emitter/mixer/toggle-mixer";
 
