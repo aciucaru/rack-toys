@@ -9,7 +9,8 @@ export interface EnvelopeMultiplier extends Emitter, Receiver
     // Must start the 'Release' phase
     triggerRelease(): void;
 
-    // Must return the duration of the 'Release' phase (not the time at which it ends, but just teh duration).
-    // This duration should be computed right after the 'triggerRelease()' method
-    getEstimatedReleaseDuration(): number;
+    /* Must return the Web Audio API time when the 'Release' phase finishes completely (basically when there should be
+    ** no more sound).
+    ** This time should be computed right after the 'triggerRelease()' method of this interface. */
+    getFinsihTime(): number;
 }
