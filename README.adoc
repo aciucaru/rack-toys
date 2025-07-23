@@ -22,7 +22,7 @@ export interface EnvelopeMultiplier extends Emitter, Receiver
     triggerAttack(): void;
     triggerRelease(): void;
     getFinsihTime(): number;
-}`
+}
 ----
 
 [,ts]
