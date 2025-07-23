@@ -11,7 +11,7 @@ The volume will be provided by any subclass of *SynthVoice* and it can be any ty
 design is flexible.
 
 In order to obtain this design we use the following:
-- *interface EnvelopeMultiplier*: this is the template for any envelope
+* *interface EnvelopeMultiplier*: this is the template for any envelope
 [,ts]
 ----
 export interface EnvelopeMultiplier extends Emitter, Receiver
@@ -20,6 +20,21 @@ export interface EnvelopeMultiplier extends Emitter, Receiver
     triggerRelease(): void;
     getFinsihTime(): number;
 }`
+----
+* *export abstract class SynthVoice<N extends Note> implements Emitter*: this represents a sungle synth voice that has
+an internal envelope
+[,ts]
+----
+export abstract class SynthVoice<N extends Note> implements Emitter
+{
+    // ...
+    
+    protected abstract startSignal(note: N): void;
+    protected abstract releaseSignal(): void;
+    protected abstract getEnvelopeMultiplier(): EnvelopeMultiplier; // this is the method that must return an envelope
+
+    // ...
+}
 ----
 
 = React + TypeScript + Vite
