@@ -32,9 +32,7 @@ export abstract class SynthVoice<N extends Note> implements Emitter
 
     // The abstracts methods of this class
     protected abstract startSignal(note: N): void;
-    // protected abstract releaseSignal(onReleaseFinshed: () => void): void;
     protected abstract releaseSignal(): void;
-    // protected abstract getEstimatedReleaseDuration(): number;
     protected abstract getEnvelopeMultiplier(): EnvelopeMultiplier;
 
     private static readonly abstractClassLogger: Logger<ILogObj> = new Logger({name: "abstract MonoSynth", minLevel: Settings.minLogLevel });

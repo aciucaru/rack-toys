@@ -17,12 +17,12 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
     private noteUtils: Note12TETUtils;
     private oscNoteOffset: Note12TET;
 
-    // the oscillators:
+    // The oscillators (in this case only one):
     private oscillator: PulseOscillator;
 
     private adsrEnvelopeMultiplier: AdsrEnvelopeMultiplier;
 
-    // the final node
+    // The final node
     private outputNode: GainNode;
 
     private static readonly logger: Logger<ILogObj> = new Logger({name: "TestMonoSynth", minLevel: Settings.minLogLevel});
@@ -47,7 +47,7 @@ export class TestMonoSynth extends SynthVoice<Note12TET>
         // connect the ADSR envelope with the final output
         this.adsrEnvelopeMultiplier.getOutputNode().connect(this.outputNode);
 
-        this.adsrEnvelopeMultiplier.setParams(2.0, 2.0, 0.5, 1.0);
+        this.adsrEnvelopeMultiplier.setParams(1.0, 1.0, 1.0, 1.0);
     }
 
     // Method inheritted from 'Emitter' interface
@@ -103,24 +103,7 @@ export class TestPolySynth extends PolySynth<Note12TET, TestMonoSynth>
         return new TestMonoSynth(this.getAudioContext());
     }
 
-    // public setMainGain(gain: number): void
-    // {
-    //     if (Settings.minVoiceGain <= gain && gain <= Settings.maxVoiceGain)
-    //     {
-    //         TestPolySynth.logger.debug(`setGain(${gain})`);
-
-    //         const currentTime = this.getAudioContext().currentTime;
-
-    //         // set the new value
-    //         this.getOutputNode().gain.linearRampToValueAtTime(gain, currentTime + 0.1);
-    //     }
-    //     else
-    //         TestPolySynth.logger.warn(`setGain(${gain}): value outside bounds`);
-    // }
-
-    public getAudioContext(): AudioContext { return this.getAudioContext(); }
-
-    // required for having permission to play the sound in the browser, after a user interaction
+    // Required for having permission to play the sound in the browser, after a user interaction
     public resume(): void
     {
         this.getAudioContext().resume();
