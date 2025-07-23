@@ -7,7 +7,7 @@ polyphonic synthesizer using those voices will sound bad when multiple notes are
 
 Forcing each single voice to have some kind of volume envelope gives a much nicer sound, a more predictable result.
 
-The volume will be provided by any subclass of of *SynthVoice* and it can be any type of envelope (not just ADSR) so the 
+The volume will be provided by any subclass of *SynthVoice* and it can be any type of envelope (not just ADSR) so the 
 design is flexible.
 
 = React + TypeScript + Vite
