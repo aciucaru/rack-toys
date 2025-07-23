@@ -30,16 +30,14 @@ export interface EnvelopeMultiplier extends Emitter, Receiver
 export abstract class SynthVoice<N extends Note> implements Emitter
 {
     // ...
-
     protected abstract startSignal(note: N): void;
     protected abstract releaseSignal(): void;
     protected abstract getEnvelopeMultiplier(): EnvelopeMultiplier; // this is the method that must return an envelope
-
     // ...
 }
 ----
 
-= React + TypeScript + Vite
+== React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
