@@ -1,4 +1,5 @@
 = split-setting branch
+
 This branch is made in order split the single file (and sigle class) that conatains alll the settings into multiple parts.
 
 == React + TypeScript + Vite
