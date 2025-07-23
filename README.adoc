@@ -10,6 +10,18 @@ Forcing each single voice to have some kind of volume envelope gives a much nice
 The volume will be provided by any subclass of *SynthVoice* and it can be any type of envelope (not just ADSR) so the 
 design is flexible.
 
+In order to obtain this design we use the following:
+- *interface EnvelopeMultiplier*: this is the template for any envelope
+[,ts]
+----
+export interface EnvelopeMultiplier extends Emitter, Receiver
+{
+    triggerAttack(): void;
+    triggerRelease(): void;
+    getFinsihTime(): number;
+}`
+----
+
 = React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
