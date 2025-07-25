@@ -1,5 +1,5 @@
-import { Settings } from "../../../../constants/settings";
-import { NoteSettings } from "../../../../constants/note-settings";
+import { Settings } from "../../../core/settings";
+import { NoteSettings } from "../../../settings/note-settings";
 
 import { RestartableGenerator, type EndableNode } from "../../../core/emitter";
 import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";

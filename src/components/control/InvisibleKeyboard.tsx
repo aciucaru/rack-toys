@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./InvisibleKeyboard.module.css";
 
-import { Settings } from "../../constants/settings";
+import { Settings } from "../../audio/core/settings";
 import { Note12TET } from "../../audio/note/note12tet";
 import { TestPolySynth, testPolySynth } from "../../audio/synth/virtual-analog/test-synth";
 // import { monoSynth } from "../../audio/synth/virtual-analog/analog-synth";

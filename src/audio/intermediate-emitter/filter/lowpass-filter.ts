@@ -1,4 +1,4 @@
-import { Settings } from "../../../constants/settings";
+import { FilterSettings, Settings } from "../../core/settings";
 import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope-generator";
 
 import { Logger } from "tslog";
@@ -43,16 +43,16 @@ export class OscFilter
         this.filterNode = this.audioContext.createBiquadFilter();
         this.filterNode.type = "lowpass";
         // set the cuttof frequency and detune to a default
-        this.filterNode.frequency.setValueAtTime(Settings.defaultFilterCutoffFreq, this.audioContext.currentTime);
-        this.filterNode.detune.setValueAtTime(Settings.defaultFilterDetune, this.audioContext.currentTime);
+        this.filterNode.frequency.setValueAtTime(FilterSettings.defaultCutoffFreq, this.audioContext.currentTime);
+        this.filterNode.detune.setValueAtTime(FilterSettings.defaultDetune, this.audioContext.currentTime);
 
         // connect inherited input and output to the low-pass filter node
         this.inputGainNode.connect(this.filterNode);
         this.filterNode.connect(this.outputGainNode);
 
         const useFixedModulationRanges = false;
-        const lowerModulationFixedRange = Settings.minFilterLfoAmount;
-        const upperModulationFixedRange = Settings.maxFilterLfoAmount;
+        const lowerModulationFixedRange = FilterSettings.minLfoAmount;
+        const upperModulationFixedRange = FilterSettings.maxLfoAmount;
 
         this.cutoffAdsrEnvelope = new AdsrEnvelopeGenerator(this.audioContext);
         this.envelopeAmountGainNode = this.audioContext.createGain();
@@ -74,7 +74,7 @@ export class OscFilter
     // sets the cutoff frequency of the filter, in Hz
     public setCutoffFrequency(freq: number): boolean
     {
-        if (Settings.minFilterCutoffFreq <= freq && freq <= Settings.maxFilterCutoffFreq)
+        if (FilterSettings.minCutoffFreq <= freq && freq <= FilterSettings.maxCutoffFreq)
         {
             OscFilter.logger.debug(`setCutoffFrequency(${freq})`);
 
@@ -92,7 +92,7 @@ export class OscFilter
 
     public setResonance(resonance: number): boolean
     {
-        if (Settings.minFilterResonance <= resonance && resonance <= Settings.maxFilterResonance)
+        if (FilterSettings.minResonance <= resonance && resonance <= FilterSettings.maxResonance)
         {
             OscFilter.logger.debug(`setResonance(${resonance})`);
 
@@ -116,7 +116,7 @@ export class OscFilter
     // sets the frequency detune of the filter, in cents
     private setDetune(centsDetune: number): boolean
     {
-        if (Settings.minFilterDetune <= centsDetune && centsDetune <= Settings.maxFilterDetune)
+        if (FilterSettings.minDetune <= centsDetune && centsDetune <= FilterSettings.maxDetune)
         {
             OscFilter.logger.debug(`setDetune(${centsDetune})`);
 
@@ -134,7 +134,7 @@ export class OscFilter
     // sets the Q Factor (quality factor), no units
     private setQFactor(qFactor: number): boolean
     {
-        if (Settings.minFilterQFactor <= qFactor && qFactor <= Settings.maxFilterQFactor)
+        if (FilterSettings.minQFactor <= qFactor && qFactor <= FilterSettings.maxQFactor)
         {
             OscFilter.logger.debug(`setQFactor(${qFactor})`);
 
@@ -151,7 +151,7 @@ export class OscFilter
 
     public setEnvelopeAmount(amount: number): boolean
     {
-        if (Settings.minFilterEnvelopeAmount <= amount && amount <= Settings.maxFilterEnvelopeAmount)
+        if (FilterSettings.minEnvelopeAmount <= amount && amount <= FilterSettings.maxEnvelopeAmount)
         {
             OscFilter.logger.debug(`setEnvelopeAmount(${amount})`);
 
@@ -170,7 +170,7 @@ export class OscFilter
     // sets the filter gain
     private setGain(gain: number): boolean
     {
-        if (Settings.minFilterGain <= gain && gain <= Settings.maxFilterGain)
+        if (FilterSettings.minGain <= gain && gain <= FilterSettings.maxGain)
         {
             OscFilter.logger.debug(`setGain(${gain})`);
 

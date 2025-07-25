@@ -1,9 +1,11 @@
-import { Constants } from "../../constants/constants";
-import { Settings } from "../../constants/settings";
+import { Constants } from "../settings/constants";
+import { Settings } from "../core/settings";
+import { NoteSettings } from "../settings/note-settings";
 import type { NoteUtils, Note } from "../core/note";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
+
 
 
 // Freq
@@ -95,7 +97,7 @@ export class Note12TETUtils implements NoteUtils<Note12TET>
     // Extra method, not found in Note<> generic interface, it's added in case it might be usefull
     public setFromMidiNoteNumber(mainNote: Note12TET, midiNoteNumber: number): boolean
     {
-        if (Settings.minMidiNote <= midiNoteNumber && midiNoteNumber <= Settings.maxMidiNote)
+        if (NoteSettings.minMidiNote <= midiNoteNumber && midiNoteNumber <= NoteSettings.maxMidiNote)
         {
             Note12TETUtils.logger.debug(`setFromMidiNoteNumber(${midiNoteNumber})`);
 

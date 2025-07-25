@@ -1,4 +1,4 @@
-import { Settings } from "../../../constants/settings";
+import { Settings } from "../../core/settings";
 import type { Emitter } from "../../core/emitter";
 
 import { Logger } from "tslog";

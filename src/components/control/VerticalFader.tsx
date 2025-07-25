@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from './VerticalFader.module.css';
 
 import { Logger } from 'tslog';
-import { Settings } from '../../constants/settings';
+import { Settings } from '../../audio/core/settings';
 
 
 

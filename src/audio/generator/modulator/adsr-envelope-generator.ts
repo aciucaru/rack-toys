@@ -1,4 +1,4 @@
-import { Settings } from "../../../constants/settings";
+import { AdsrSettings, Settings } from "../../core/settings";
 
 import { RestartableGenerator, type EndableNode } from "../../core/emitter";
 
@@ -296,10 +296,10 @@ export class AdsrEnvelopeGenerator extends RestartableGenerator
     private outputNode: GainNode;
 
     // main parameters: durations (not times/moments!) and sustain level
-    private attackDuration: number = Settings.defaultAdsrAttackDuration;
-    private decayDuration: number = Settings.defaultAdsrDecayDuration;
-    private sustainLevel: number = Settings.defaultAdsrSustainLevel;
-    private releaseDuration: number = Settings.defaultAdsrReleaseDuration;
+    private attackDuration: number = AdsrSettings.defaultAttackDuration;
+    private decayDuration: number = AdsrSettings.defaultDecayDuration;
+    private sustainLevel: number = AdsrSettings.defaultSustainLevel;
+    private releaseDuration: number = AdsrSettings.defaultReleaseDuration;
 
     // time parameters:
     // private onTime = 0; // time when the ADSR is turned on
@@ -362,7 +362,7 @@ export class AdsrEnvelopeGenerator extends RestartableGenerator
         ** leaving a very small signal that might still be audible.
         ** But the 'outputGainNode' never uses an exponential ramp, so it can go completely to zero, making the
         ** ADSR truly silent when necessary (in the 'release' phase). */
-        this.outputNode.gain.setValueAtTime(Settings.adsrOffLevel, this.audioContext.currentTime);
+        this.outputNode.gain.setValueAtTime(AdsrSettings.offLevel, this.audioContext.currentTime);
 
         // connect nodes betweem them
         this.constantSource.connect(this.adsrMultiplier.getInputNode());
@@ -429,7 +429,7 @@ export class AdsrEnvelopeGenerator extends RestartableGenerator
         // compute the start and end of the 'release' phase
         const releaseStartTime = cancelationStartTime;
         const releaseEndTime = releaseStartTime + this.releaseDuration;
-        const offTime = releaseEndTime + Settings.adsrSafetyDuration;
+        const offTime = releaseEndTime + AdsrSettings.safetyDuration;
 
         // then start the actual 'release' phase by ramping down to the minimum possible
         // for 'release' phase we use linear ramp, not exponential, because exponential goes down to quick
@@ -453,7 +453,7 @@ export class AdsrEnvelopeGenerator extends RestartableGenerator
 
     public setAttackTime(attackTime: number): boolean
     {
-        if (Settings.minAdsrAttackDuration <= attackTime && attackTime <= Settings.maxAdsrAttackDuration)
+        if (AdsrSettings.minAttackDuration <= attackTime && attackTime <= AdsrSettings.maxAttackDuration)
         {
             AdsrEnvelopeGenerator.logger.debug(`setAttackTime(${attackTime})`);
 
@@ -471,7 +471,7 @@ export class AdsrEnvelopeGenerator extends RestartableGenerator
 
     public setDecayTime(decayTime: number): boolean
     {
-        if (Settings.minAdsrDecayDuration <= decayTime && decayTime <= Settings.maxAdsrDecayDuration)
+        if (AdsrSettings.minDecayDuration <= decayTime && decayTime <= AdsrSettings.maxDecayDuration)
         {
             AdsrEnvelopeGenerator.logger.debug(`setDecayTime(${decayTime})`);
 
@@ -489,7 +489,7 @@ export class AdsrEnvelopeGenerator extends RestartableGenerator
 
     public setSustainLevel(sustainLevel: number): boolean
     {
-        if (Settings.minAdsrSustainLevel <= sustainLevel && sustainLevel <= Settings.maxAdsrSustainLevel)
+        if (AdsrSettings.minSustainLevel <= sustainLevel && sustainLevel <= AdsrSettings.maxSustainLevel)
         {
             AdsrEnvelopeGenerator.logger.debug(`setSustainLevel(${sustainLevel})`);
 
@@ -507,7 +507,7 @@ export class AdsrEnvelopeGenerator extends RestartableGenerator
 
     public setReleaseTime(releaseTime: number): boolean
     {
-        if (Settings.minAdsrReleaseDuration <= releaseTime && releaseTime <= Settings.maxAdsrReleaseDuration)
+        if (AdsrSettings.minReleaseDuration <= releaseTime && releaseTime <= AdsrSettings.maxReleaseDuration)
         {
             AdsrEnvelopeGenerator.logger.debug(`setReleaseTime(${releaseTime})`);
 
