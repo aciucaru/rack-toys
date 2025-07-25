@@ -1,5 +1,5 @@
-import { OscillatorSettings, Settings } from "../../../core/settings";
-import { type EndableNode, RestartableGenerator, ChildGenerator } from "../../../core/emitter";
+import { OscillatorSettings, Settings } from "../../../../core/settings";
+import { type EndableNode, RestartableGenerator, ChildGenerator } from "../../../../core/emitter";
 import { WhiteNoiseOscillator } from "./white-noise";
 import { PinkNoiseOscillator } from "./pink-noise";
 import { BrownNoiseOscillator } from "./brown-noise";

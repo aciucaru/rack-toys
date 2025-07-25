@@ -1,6 +1,6 @@
-import { AdsrSettings, Settings } from "../../core/settings";
+import { AdsrSettings, Settings } from "../../../core/settings";
 
-import { RestartableGenerator, type EndableNode } from "../../core/emitter";
+import { RestartableGenerator, type EndableNode } from "../../../core/emitter";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";

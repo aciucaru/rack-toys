@@ -1,7 +1,7 @@
 import { Constants } from "../settings/constants";
-import { Settings } from "../core/settings";
+import { Settings } from "../../core/settings";
 import { NoteSettings } from "../settings/note-settings";
-import type { NoteUtils, Note } from "../core/note";
+import type { NoteUtils, Note } from "../../core/note";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";

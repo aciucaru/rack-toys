@@ -1,4 +1,4 @@
-import type { Emitter } from "../../core/emitter";
+import type { Emitter } from "../../../core/emitter";
 
 export class BinaryInterpolatorMixer implements Emitter
 {

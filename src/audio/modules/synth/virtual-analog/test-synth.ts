@@ -1,14 +1,14 @@
-import { Settings } from "../../core/settings";
+import { Settings } from "../../../core/settings";
 import { audioContext } from "../../settings/shareable-audio-nodes";
 
 import { Note12TETUtils, Note12TET } from "../../note/note12tet";
 
-import { PolySynth, SynthVoice } from "../../core/synth";
+import { PolySynth, SynthVoice } from "../../../core/synth";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
 import { PulseOscillator } from "../../generator/oscillator/melodic/pulse-oscillator";
-import type { EnvelopeMultiplier } from "../../core/envelope-multiplier";
+import type { EnvelopeMultiplier } from "../../../core/envelope-multiplier";
 import { AdsrEnvelopeMultiplier } from "../../intermediate-emitter/envelope/adsr-envelope-multiplier";
 
 
