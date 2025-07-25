@@ -4,7 +4,12 @@ This branch is made in order to restructure the audio code into two main parts:
 
 * the 'core': containes interfaces and abstract classes, it basically contains the desing of the audio code; this corresponds to the 'core' directory
 
-* the 'implemntation': containes implementatations of the interfaces and abstract classes; this corresponds to the 'modules' directory
+* the 'implementation': containes implementatations of the interfaces and abstract classes; this corresponds to the 'modules' directory
+
+So the final directory structure will be:
+* audio/
+** core/
+** modules/
 
 == React + TypeScript + Vite
 
