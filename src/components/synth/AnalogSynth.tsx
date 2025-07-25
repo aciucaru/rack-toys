@@ -1,7 +1,7 @@
 import React from "react";
 import styles from './AnalogSynth.module.css';
 
-import { Settings } from "../../audio/core/settings";
+import { OscillatorSettings, Settings } from "../../audio/core/settings";
 import { testPolySynth } from "../../audio/synth/virtual-analog/test-synth";
 // import * as oscCallbacks from "../../../callbacks/oscillators-callbacks";
 // import * as mixerCallbacks from "../../../callbacks/mixer-callbacks";
@@ -77,8 +77,8 @@ export function AnalogSynth()
             <div style={{ gridColumn: "1 / 2", gridRow: "5 / 6" }}>
                 <Knob
                     label="Octave"
-                    minValue={Settings.minOscOctavesOffset}
-                    maxValue={Settings.maxOscOctavesOffset}
+                    minValue={OscillatorSettings.minOctavesOffset}
+                    maxValue={OscillatorSettings.maxOctavesOffset}
                     initialValue={0}
                     step={1}
                     decimals={0}
@@ -89,8 +89,8 @@ export function AnalogSynth()
             <div style={{ gridColumn: "3 / 4", gridRow: "5 / 6" }}>
                 <Knob
                     label="Semitones"
-                    minValue={Settings.minOscSemitonesOffset}
-                    maxValue={Settings.maxOscSemitonesOffset}
+                    minValue={OscillatorSettings.minSemitonesOffset}
+                    maxValue={OscillatorSettings.maxSemitonesOffset}
                     initialValue={0}
                     step={1}
                     decimals={0}
@@ -101,8 +101,8 @@ export function AnalogSynth()
             <div style={{ gridColumn: "5 / 6", gridRow: "5 / 6" }}>
                 <Knob
                     label="Cents"
-                    minValue={Settings.minOscCentsOffset}
-                    maxValue={Settings.maxOscCentsOffset}
+                    minValue={OscillatorSettings.minCentsOffset}
+                    maxValue={OscillatorSettings.maxCentsOffset}
                     initialValue={0}
                     step={1}
                     decimals={0}
@@ -128,9 +128,9 @@ export function AnalogSynth()
             <div style={{ gridColumn: "3 / 4", gridRow: "7 / 8" }}>
                 <Knob
                     label="PW"
-                    minValue={Settings.minOscPulseWidth}
-                    maxValue={Settings.maxOscPulseWidth}
-                    initialValue={Settings.defaultOscPulseWidth}
+                    minValue={OscillatorSettings.minPulseWidth}
+                    maxValue={OscillatorSettings.maxPulseWidth}
+                    initialValue={OscillatorSettings.defaultPulseWidth}
                     displayFactor={100}
                     step={0.01}
                     decimals={0}

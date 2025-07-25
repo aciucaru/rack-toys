@@ -1,4 +1,4 @@
-import { Settings } from "../../../core/settings";
+import { OscillatorSettings, Settings } from "../../../core/settings";
 import { type EndableNode, RestartableGenerator, ChildGenerator } from "../../../core/emitter";
 import { WhiteNoiseOscillator } from "./white-noise";
 import { PinkNoiseOscillator } from "./pink-noise";
@@ -57,17 +57,17 @@ export class TripleNoiseOscillator extends ChildGenerator
         // Instantiate the final output node separately, and before the other nodes
         this.outputNode = this.audioContext.createGain();
 
-        if (Settings.minOscGain <= initialGain && initialGain <= Settings.maxOscGain)
+        if (OscillatorSettings.minGain <= initialGain && initialGain <= OscillatorSettings.maxGain)
             this.outputNode.gain.setValueAtTime(initialGain, this.audioContext.currentTime);
         else
         {
             TripleNoiseOscillator.logger.warn(`constructor(): 'initialGain' of value ${initialGain} is outside bounds and will be ignored`);
 
-            if (initialGain < Settings.minOscGain)
-                this.outputNode.gain.setValueAtTime(Settings.minOscGain, this.audioContext.currentTime);
+            if (initialGain < OscillatorSettings.minGain)
+                this.outputNode.gain.setValueAtTime(OscillatorSettings.minGain, this.audioContext.currentTime);
             
-            if (initialGain > Settings.maxOscGain)
-                this.outputNode.gain.setValueAtTime(Settings.maxOscGain, this.audioContext.currentTime);
+            if (initialGain > OscillatorSettings.maxGain)
+                this.outputNode.gain.setValueAtTime(OscillatorSettings.maxGain, this.audioContext.currentTime);
         }
 
         // Instantiate and connect all nodes and set their parameters
@@ -142,7 +142,7 @@ export class TripleNoiseOscillator extends ChildGenerator
     // This method sets the gain of this class's output
     public setOutputGain(gain: number): boolean
     {
-        if (Settings.minOscGain <= gain && gain <= Settings.maxOscGain)
+        if (OscillatorSettings.minGain <= gain && gain <= OscillatorSettings.maxGain)
         {
             TripleNoiseOscillator.logger.debug(`setOutputGain(${gain})`);
 
