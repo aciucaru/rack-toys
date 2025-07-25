@@ -1,7 +1,8 @@
-= split-setting branch
+= core-and-modules-directory-restructuring branch
 
-This branch is made in order to split the single file (and sigle class) that contains all the settings into multiple classes
-and files for settings.
+This branch is made in order to restructure the audio code into two main parts:
+* the 'core': containes interfaces and abstract classes, it basically contains the desing of the audio code; this corresponds to the 'core' directory
+* the 'implemntation': containes implemntatations of the interfaces and abstract classes; this corresponds to the 'modules' directory
 
 == React + TypeScript + Vite
 
