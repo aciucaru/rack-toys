@@ -1,6 +1,6 @@
-import { AdsrSettings, Settings } from "../../core/settings";
+import { AdsrSettings, Settings } from "../../../core/settings";
 
-import type { EnvelopeMultiplier } from "../../core/envelope-multiplier";
+import type { EnvelopeMultiplier } from "../../../core/envelope-multiplier";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";

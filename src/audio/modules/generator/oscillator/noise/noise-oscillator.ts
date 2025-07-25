@@ -1,8 +1,8 @@
-import { Settings } from "../../../core/settings";
+import { Settings } from "../../../../core/settings";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";
-import { type EndableNode, RestartableGenerator } from "../../../core/emitter";
+import { type EndableNode, RestartableGenerator } from "../../../../core/emitter";
 
 
 /* Base abstract class for all custom noise oscillators.

@@ -1,4 +1,4 @@
-import { FilterSettings, Settings } from "../../core/settings";
+import { FilterSettings, Settings } from "../../../core/settings";
 import { AdsrEnvelopeGenerator } from "../../generator/modulator/adsr-envelope-generator";
 
 import { Logger } from "tslog";

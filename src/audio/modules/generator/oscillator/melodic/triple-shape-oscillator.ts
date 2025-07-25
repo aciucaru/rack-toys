@@ -1,9 +1,9 @@
-import { Settings } from "../../../core/settings";
+import { Settings } from "../../../../core/settings";
 import { PulseOscillator } from "./pulse-oscillator";
 import { ToggleMixer } from "../../../intermediate-emitter/mixer/toggle-mixer";
 
-import { RestartableGenerator, ChildGenerator } from "../../../core/emitter";
-import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
+import { RestartableGenerator, ChildGenerator } from "../../../../core/emitter";
+import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../../core/signal";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";

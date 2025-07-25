@@ -1,8 +1,8 @@
-import { OscillatorSettings, Settings } from "../../../core/settings";
+import { OscillatorSettings, Settings } from "../../../../core/settings";
 import { NoteSettings } from "../../../settings/note-settings";
 
-import { RestartableGenerator, type EndableNode } from "../../../core/emitter";
-import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../core/signal";
+import { RestartableGenerator, type EndableNode } from "../../../../core/emitter";
+import type { FrequencyBasedSignal, PulseBasedSignal } from "../../../../core/signal";
 
 import { Logger } from "tslog";
 import type { ILogObj } from "tslog";

@@ -1,4 +1,4 @@
-import type { Note12TETUtils } from "../note/note12tet";
+import type { Note12TETUtils } from "../modules/note/note12tet";
 
 /* Represents the concept of a signal which has a frequency. */
 export interface FrequencyBasedSignal
