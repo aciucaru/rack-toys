@@ -1,4 +1,4 @@
-import { OscillatorSettings, Settings } from "../../../settings/settings";
+import { OscillatorSettings, Settings } from "../../../core/settings";
 import { NoteSettings } from "../../../settings/note-settings";
 
 import { RestartableGenerator, type EndableNode } from "../../../core/emitter";

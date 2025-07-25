@@ -1,4 +1,4 @@
-import { Settings } from "../../settings/settings";
+import { Settings } from "../../core/settings";
 
 import { RestartableGenerator, type EndableNode } from "../../core/emitter";
 

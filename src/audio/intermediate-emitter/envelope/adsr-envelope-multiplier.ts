@@ -1,4 +1,4 @@
-import { AdsrSettings, Settings } from "../../settings/settings";
+import { AdsrSettings, Settings } from "../../core/settings";
 
 import type { EnvelopeMultiplier } from "../../core/envelope-multiplier";
 
